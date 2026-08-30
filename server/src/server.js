@@ -40,11 +40,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-if (process.env.NODE_ENV !== 'production' || process.env.RUN_LOCAL === 'true') {
-  app.listen(PORT, () => {
-    console.log(`[AGROCURE SERVER] Running on port ${PORT}`);
-    console.log(`[AGROCURE SERVER] Prototype demo store initialized with realistic Indian agricultural data.`);
-  });
-}
+app.listen(PORT, () => {
+  console.log(`[AGROCURE SERVER] Running on port ${PORT}`);
+  console.log(`[AGROCURE SERVER] Prototype demo store initialized with realistic Indian agricultural data.`);
+});
 
 export default app;
