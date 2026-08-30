@@ -1,0 +1,26 @@
+{
+  "name": "agrocure",
+  "version": "1.0.0",
+  "description": "AgroCure - From Procurement Uncertainty to Complete Visibility (SIH 2026)",
+  "main": "server/src/server.js",
+  "scripts": {
+    "setup": "npm install && cd server && npm install && cd ../client && npm install",
+    "seed": "cd server && npm run seed",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "start": "cd server && npm start"
+  },
+  "keywords": [
+    "agrocure",
+    "sih2026",
+    "agritech",
+    "procurement",
+    "tracking"
+  ],
+  "author": "Team 1Vison",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
