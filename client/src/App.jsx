@@ -14,7 +14,6 @@ import { LoginPage } from './pages/LoginPage';
 import { FarmerDashboard } from './pages/farmer/FarmerDashboard';
 import { CropRegistrationPage } from './pages/farmer/CropRegistrationPage';
 import { TokenDetailsPage } from './pages/farmer/TokenDetailsPage';
-import { CropJourneyPage } from './pages/farmer/CropJourneyPage';
 import { PaymentStatusPage } from './pages/farmer/PaymentStatusPage';
 import { CentresPage } from './pages/farmer/CentresPage';
 import { DocumentsPage } from './pages/farmer/DocumentsPage';
@@ -67,7 +66,6 @@ export default function App() {
                   <Route path="/farmer" element={<FarmerDashboard />} />
                   <Route path="/farmer/register-crop" element={<CropRegistrationPage />} />
                   <Route path="/farmer/token" element={<TokenDetailsPage />} />
-                  <Route path="/farmer/journey" element={<CropJourneyPage />} />
                   <Route path="/farmer/payments" element={<PaymentStatusPage />} />
                   <Route path="/farmer/centres" element={<CentresPage />} />
                   <Route path="/farmer/documents" element={<DocumentsPage />} />

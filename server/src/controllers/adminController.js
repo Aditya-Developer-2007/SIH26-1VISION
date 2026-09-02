@@ -4,6 +4,7 @@ import Procurement from '../models/Procurement.js';
 import Payment from '../models/Payment.js';
 import Grievance from '../models/Grievance.js';
 import AuditLog from '../models/AuditLog.js';
+import QualityInspection from '../models/QualityInspection.js';
 
 export const getAdminDashboard = async (req, res) => {
   try {
@@ -131,6 +132,95 @@ export const initiatePayment = async (req, res) => {
     
     res.json({ success: true, data: payment });
   } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+export const getAdminCentreOfficers = async (req, res) => {
+  try {
+    const { centreId } = req.params;
+    const officers = await User.find({ role: 'OFFICER', assignedCentreIds: centreId }).select('name mobile email');
+    
+    const officerStats = await Promise.all(officers.map(async (officer) => {
+      const inspections = await QualityInspection.find({ officerId: officer._id }).populate({
+        path: 'procurementId',
+        populate: { path: 'cropId' }
+      });
+
+      let farmersProcessed = new Set();
+      let totalQuantity = 0;
+      let totalPayout = 0;
+
+      inspections.forEach(insp => {
+        if (insp.result === 'ACCEPTED' && insp.procurementId) {
+          farmersProcessed.add(insp.procurementId.farmerId.toString());
+          totalQuantity += insp.actualWeight;
+          totalPayout += insp.actualWeight * (insp.procurementId.cropId?.mspRate || 0);
+        }
+      });
+
+      return {
+        id: officer._id,
+        name: officer.name,
+        mobile: officer.mobile,
+        farmersProcessed: farmersProcessed.size,
+        totalQuantityProcured: totalQuantity,
+        totalPayoutAmount: totalPayout
+      };
+    }));
+
+    res.json({ success: true, data: officerStats });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+export const getAdminOfficerDetails = async (req, res) => {
+  try {
+    const { officerId } = req.params;
+    const officer = await User.findById(officerId).select('name mobile email assignedCentreIds').populate('assignedCentreIds', 'name district');
+    
+    if (!officer) return res.status(404).json({ success: false, message: 'Officer not found' });
+
+    const inspections = await QualityInspection.find({ officerId }).populate({
+      path: 'procurementId',
+      populate: [
+        { path: 'cropId', select: 'name mspRate' },
+        { path: 'farmerId', select: 'name mobile' },
+        { path: 'tokenId', select: 'tokenNumber' }
+      ]
+    }).sort({ createdAt: -1 });
+
+    const procurements = inspections.filter(insp => insp.procurementId).map(insp => {
+      const p = insp.procurementId;
+      return {
+        id: p._id,
+        token: p.tokenId?.tokenNumber || 'N/A',
+        farmerName: p.farmerId?.name || 'Unknown',
+        cropName: p.cropId?.name || 'Unknown',
+        quantity: insp.actualWeight,
+        amount: insp.actualWeight * (p.cropId?.mspRate || 0),
+        date: insp.createdAt,
+        status: p.status
+      };
+    });
+
+    res.json({ 
+      success: true, 
+      data: {
+        officer: {
+          id: officer._id,
+          name: officer.name,
+          mobile: officer.mobile,
+          email: officer.email,
+          centres: officer.assignedCentreIds.map(c => c.name).join(', ')
+        },
+        procurements
+      }
+    });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };

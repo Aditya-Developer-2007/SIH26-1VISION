@@ -10,19 +10,23 @@ import Grievance from '../models/Grievance.js';
 
 export const getFarmerDashboard = async (req, res) => {
   try {
-    const procurements = await Procurement.find({ farmerId: req.user._id }).populate('centreId').populate('cropId').populate('tokenId');
+    const procurements = await Procurement.find({ farmerId: req.user._id })
+      .sort({ createdAt: -1 })
+      .populate('centreId')
+      .populate('cropId')
+      .populate('tokenId');
     const payments = await Payment.find({ farmerId: req.user._id });
     const notifications = await Notification.find({ userId: req.user._id, read: false }).sort({ createdAt: -1 });
     
-    let activeProcurementRaw = procurements.find(p => ['SCHEDULED', 'QUALITY_CHECK', 'PROCURED', 'PAYMENT_INITIATED', 'PAYMENT_RECEIVED'].includes(p.status));
+    const activeProcurementsRaw = procurements.filter(p => ['SCHEDULED', 'QUALITY_CHECK', 'PROCURED', 'PAYMENT_INITIATED', 'PAYMENT_RECEIVED'].includes(p.status));
     
-    let activeProcurement = null;
-    let todayAction = null;
-    let token = null;
-    let journeySteps = [];
+    let activeProcurements = [];
+    let todayActions = [];
+    let tokens = [];
 
-    if (activeProcurementRaw) {
-      activeProcurement = {
+    activeProcurementsRaw.forEach(activeProcurementRaw => {
+      const activeProcurement = {
+        _id: activeProcurementRaw._id,
         cropName: activeProcurementRaw.cropId?.name,
         estimatedQuantityQuintals: activeProcurementRaw.quantity,
         status: activeProcurementRaw.status,
@@ -31,20 +35,22 @@ export const getFarmerDashboard = async (req, res) => {
         mspPerQuintal: activeProcurementRaw.mspRate,
         totalAmount: activeProcurementRaw.estimatedAmount
       };
+      activeProcurements.push(activeProcurement);
 
       if (activeProcurementRaw.status === 'SCHEDULED') {
-        todayAction = {
+        todayActions.push({
           title: "Gate Entry Scheduled",
           timeSlot: `${activeProcurementRaw.slotStart} - ${activeProcurementRaw.slotEnd}`,
           centreName: activeProcurementRaw.centreId?.name,
           distanceKm: 2,
           tokenNumber: activeProcurementRaw.tokenId?.tokenNumber,
           checklist: ['Meri Fasal Mera Byora', 'Aadhar Card', 'Bank Passbook']
-        };
+        });
       }
 
       if (activeProcurementRaw.tokenId) {
-        token = {
+        tokens.push({
+          id: activeProcurementRaw.tokenId._id,
           tokenNumber: activeProcurementRaw.tokenId.tokenNumber,
           status: activeProcurementRaw.tokenId.status,
           farmerName: req.user.name,
@@ -52,62 +58,58 @@ export const getFarmerDashboard = async (req, res) => {
           quantityQuintals: activeProcurementRaw.quantity,
           centreName: activeProcurementRaw.centreId?.name,
           centreAddress: activeProcurementRaw.centreId?.district,
-          slotDate: new Date(activeProcurementRaw.scheduledDate).toLocaleDateString(),
+          slotDate: (() => {
+            const raw = activeProcurementRaw.scheduledDate;
+            if (!raw) return 'Not Set';
+            const dateStr = (raw instanceof Date ? raw.toISOString() : String(raw)).split('T')[0];
+            const [y, m, d] = dateStr.split('-');
+            if (!y || !m || !d) return dateStr;
+            return `${parseInt(d)}/${parseInt(m)}/${y}`;
+          })(),
           slotTime: `${activeProcurementRaw.slotStart} - ${activeProcurementRaw.slotEnd}`,
           requiredDocs: ['Meri Fasal Mera Byora', 'Aadhar Card', 'Bank Passbook'],
-          qrCodeData: activeProcurementRaw.tokenId.tokenNumber
-        };
+          qrCodeData: activeProcurementRaw.tokenId.tokenNumber,
+          procurementId: activeProcurementRaw._id
+        });
       }
+    });
 
-      const statuses = ['REGISTERED', 'TOKEN_GENERATED', 'SCHEDULED', 'QUALITY_CHECK', 'PROCURED', 'PAYMENT_RECEIVED'];
-      const currentIndex = statuses.indexOf(activeProcurementRaw.status);
-      
-      journeySteps = statuses.map((status, index) => ({
-        title: status.replace(/_/g, ' '),
-        description: `Status: ${status}`,
-        timestamp: index <= currentIndex ? new Date().toISOString() : null,
-        completed: index < currentIndex,
-        current: index === currentIndex
-      }));
-    }
-
-    let paymentData = null;
+    let paymentsData = [];
     if (payments.length > 0) {
-      const p = payments[0];
-      
-      let pProcurement = null;
-      if (activeProcurementRaw && p.procurementId.toString() === activeProcurementRaw._id.toString()) {
-         pProcurement = activeProcurementRaw;
-      } else {
-         pProcurement = await Procurement.findById(p.procurementId).populate('cropId');
-      }
+      for (const p of payments) {
+        let pProcurement = activeProcurementsRaw.find(proc => p.procurementId.toString() === proc._id.toString());
+        if (!pProcurement) {
+           pProcurement = await Procurement.findById(p.procurementId).populate('cropId');
+        }
 
-      paymentData = {
-        totalAmount: p.estimatedAmount,
-        status: p.status,
-        cropName: pProcurement?.cropId?.name,
-        quantityQuintals: p.quantity,
-        mspPerQuintal: p.rate,
-        maskedAccount: "XXXXX1234",
-        utrReference: p.referenceNumber || "PENDING-DBT",
-        initiatedAt: p.initiatedAt ? new Date(p.initiatedAt).toLocaleDateString() : "Pending",
-        timeline: [
-          { label: 'J-Form Issued', done: true, date: p.createdAt.toLocaleDateString() },
-          { label: 'DBT Payment Initiated', active: p.status === 'PENDING' || p.status === 'INITIATED', done: p.status === 'INITIATED' || p.status === 'CREDITED', date: p.initiatedAt ? new Date(p.initiatedAt).toLocaleDateString() : 'Processing' },
-          { label: 'Bank Credit Received', active: false, done: p.status === 'CREDITED', date: p.creditedAt ? new Date(p.creditedAt).toLocaleDateString() : 'Pending' }
-        ]
-      };
+        paymentsData.push({
+          id: p._id,
+          procurementId: p.procurementId,
+          totalAmount: p.estimatedAmount,
+          status: p.status,
+          cropName: pProcurement?.cropId?.name,
+          quantityQuintals: p.quantity,
+          mspPerQuintal: p.rate,
+          maskedAccount: "XXXXX1234",
+          utrReference: p.referenceNumber || "PENDING-DBT",
+          initiatedAt: p.initiatedAt ? new Date(p.initiatedAt).toLocaleDateString() : "Pending",
+          timeline: [
+            { label: 'J-Form Issued', done: true, date: p.createdAt.toLocaleDateString() },
+            { label: 'DBT Payment Initiated', active: p.status === 'PENDING' || p.status === 'INITIATED', done: p.status === 'INITIATED' || p.status === 'CREDITED', date: p.initiatedAt ? new Date(p.initiatedAt).toLocaleDateString() : 'Processing' },
+            { label: 'Bank Credit Received', active: false, done: p.status === 'CREDITED', date: p.creditedAt ? new Date(p.creditedAt).toLocaleDateString() : 'Pending' }
+          ]
+        });
+      }
     }
 
     res.json({
       success: true,
       data: {
         farmer: { name: req.user.name },
-        todayAction,
-        activeProcurement,
-        token,
-        payment: paymentData,
-        journeySteps,
+        todayAction: todayActions[0] || null, // Keep the first action for the banner, optionally we could show multiple
+        activeProcurements,
+        tokens,
+        payments: paymentsData,
         nearbyCentres: await Centre.find({ status: 'ACTIVE' }).limit(3),
         smartInsight: { title: "Queue Update", message: "Normal wait times today.", type: "info" },
         procurements,
@@ -198,10 +200,13 @@ export const registerCropAndBookSlot = async (req, res) => {
     const crop = await Crop.findById(cropId);
     if (!crop) return res.status(404).json({ success: false, message: 'Crop not found' });
     
+    // Parse scheduledDate safely: always store as UTC midnight from YYYY-MM-DD
+    const parsedDate = scheduledDate ? new Date(`${scheduledDate}T00:00:00.000Z`) : new Date();
+
     // Create Procurement
     const procurement = new Procurement({
       farmerId: req.user._id, centreId, cropId, quantity, season: crop.season, year: new Date().getFullYear(),
-      mspRate: crop.mspRate, status: 'SCHEDULED', scheduledDate, slotStart, slotEnd,
+      mspRate: crop.mspRate, status: 'SCHEDULED', scheduledDate: parsedDate, slotStart, slotEnd,
       estimatedAmount: quantity * crop.mspRate
     });
     await procurement.save();
@@ -210,7 +215,7 @@ export const registerCropAndBookSlot = async (req, res) => {
     const token = new Token({
       tokenNumber: `AGRO-${Math.floor(1000 + Math.random() * 9000)}`,
       procurementId: procurement._id, farmerId: req.user._id, centreId,
-      date: scheduledDate, slotStart, slotEnd
+      date: parsedDate, slotStart, slotEnd
     });
     await token.save();
     

@@ -6,6 +6,7 @@ import { StatusBadge } from '../../components/common/StatusBadge';
 import { useToast } from '../../context/ToastContext';
 import { ArrivalTable } from '../../components/officer/ArrivalTable';
 import { WeighmentModal } from '../../components/officer/WeighmentModal';
+import { OfficerBillModal } from '../../components/officer/OfficerBillModal';
 import { CheckCircle2, Search, Filter, ArrowRight, ShieldCheck, QrCode, AlertCircle, TrendingUp, Users, Shield, Scale, Clock, FileText } from 'lucide-react';
 
 export const OfficerDashboard = () => {
@@ -16,6 +17,8 @@ export const OfficerDashboard = () => {
   const [selectedProcurement, setSelectedProcurement] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTokenInput, setSearchTokenInput] = useState('');
+  const [isBillModalOpen, setIsBillModalOpen] = useState(false);
+  const [billData, setBillData] = useState(null);
 
   const { addToast } = useToast();
 
@@ -56,6 +59,12 @@ export const OfficerDashboard = () => {
         addToast(`Quality inspection recorded! J-Form issued for ${selectedProcurement.farmerName}`, 'success');
         setIsModalOpen(false);
         fetchDashboard();
+        
+        // Show bill if it was accepted — check server-returned result, not frontend payload
+        if (res.data?.result === 'ACCEPTED' && res.data) {
+          setBillData(res.data);
+          setIsBillModalOpen(true);
+        }
       } else {
          addToast(res?.message || 'Error saving quality inspection', 'error');
       }
@@ -140,6 +149,13 @@ export const OfficerDashboard = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSaveWeighment}
+      />
+
+      {/* Bill Receipt Modal */}
+      <OfficerBillModal
+        isOpen={isBillModalOpen}
+        onClose={() => setIsBillModalOpen(false)}
+        data={billData}
       />
     </div>
   );

@@ -28,5 +28,13 @@ export const adminApi = {
   initiatePayment: async (paymentId) => {
     const response = await api.post(`/admin/payments/${paymentId}/initiate`);
     return response.data;
+  },
+  getDrilldownOfficers: async (centreId) => {
+    const response = await api.get(`/admin/drilldown/centres/${centreId}/officers`);
+    return response.data;
+  },
+  getDrilldownOfficerDetails: async (officerId) => {
+    const response = await api.get(`/admin/drilldown/officers/${officerId}`);
+    return response.data;
   }
 };

@@ -31,7 +31,6 @@ export const Header = () => {
         {/* Navigation Quick Links */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
           <Link to="/farmer" className="hover:text-brand-700 transition">{t('navHome')}</Link>
-          <Link to="/farmer/journey" className="hover:text-brand-700 transition">{t('navJourney')}</Link>
           <Link to="/farmer/token" className="hover:text-brand-700 transition">{t('navToken')}</Link>
           <Link to="/farmer/payments" className="hover:text-brand-700 transition">{t('navPayments')}</Link>
           <Link to="/farmer/centres" className="hover:text-brand-700 transition">{t('navCentres')}</Link>

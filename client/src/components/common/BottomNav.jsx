@@ -8,7 +8,6 @@ export const BottomNav = () => {
 
   const navItems = [
     { to: '/farmer', label: t('navHome'), icon: Home },
-    { to: '/farmer/journey', label: t('navJourney'), icon: Compass },
     { to: '/farmer/token', label: t('navToken'), icon: QrCode, highlight: true },
     { to: '/farmer/payments', label: t('navPayments'), icon: CreditCard },
     { to: '/farmer/centres', label: t('navCentres'), icon: Building2 },

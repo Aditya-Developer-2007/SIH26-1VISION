@@ -5,13 +5,25 @@ import { ArrowLeft, QrCode } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const TokenDetailsPage = () => {
-  const [token, setToken] = useState(null);
+  const [tokens, setTokens] = useState([]);
+  const [selectedTokenIndex, setSelectedTokenIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     farmerApi.getDashboard().then(res => {
       if (res?.success) {
-        setToken(res.data?.token);
+        const tokensArray = res.data?.tokens || [];
+        setTokens(tokensArray);
+
+        // Check if there's an id in the URL
+        const params = new URLSearchParams(window.location.search);
+        const urlId = params.get('id');
+        if (urlId) {
+          const idx = tokensArray.findIndex(t => t.tokenNumber === urlId);
+          if (idx !== -1) {
+            setSelectedTokenIndex(idx);
+          }
+        }
       }
       setLoading(false);
     });
@@ -31,7 +43,31 @@ export const TokenDetailsPage = () => {
         <span className="text-xs text-slate-500 font-medium">Verified Official Token</span>
       </div>
 
-      <TokenCard token={token} />
+      {tokens.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          {tokens.map((t, idx) => (
+            <button
+              key={t.id}
+              onClick={() => setSelectedTokenIndex(idx)}
+              className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold border transition-colors ${
+                idx === selectedTokenIndex
+                  ? 'bg-brand-800 text-white border-brand-800 shadow-sm'
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              {t.cropName} - {t.tokenNumber}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {tokens.length > 0 ? (
+        <TokenCard token={tokens[selectedTokenIndex]} />
+      ) : (
+        <div className="bg-white rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
+          No tokens found. Register a crop to generate a token.
+        </div>
+      )}
     </div>
   );
 };

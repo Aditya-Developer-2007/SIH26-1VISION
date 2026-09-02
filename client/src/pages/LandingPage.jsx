@@ -126,7 +126,7 @@ export const LandingPage = () => {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-              The 8-Stage Transparent Crop Journey
+              Transparent Procurement Process
             </h2>
             <p className="text-slate-600 text-sm mt-2">
               Know your crop. Know your procurement. Know your payment.

@@ -87,15 +87,36 @@ export const getOfficerProcurementById = async (req, res) => {
 export const submitQualityWeighment = async (req, res) => {
   try {
     const { procurementId } = req.params;
-    const { actualWeight, moisture, grade, remarks, result } = req.body;
+
+    // Accept both frontend field names (actualWeightQuintals, moisturePct, qualityGrade)
+    // and the canonical schema names (actualWeight, moisture, grade) for backwards compat.
+    const actualWeight  = parseFloat(req.body.actualWeight  ?? req.body.actualWeightQuintals);
+    const moisture      = parseFloat(req.body.moisture      ?? req.body.moisturePct);
+    const grade         = req.body.grade                    ?? req.body.qualityGrade;
+    const remarks       = req.body.remarks                  ?? req.body.inspectorRemarks ?? '';
+
+    // Validate required fields before touching the DB
+    if (isNaN(actualWeight) || actualWeight <= 0) {
+      return res.status(422).json({ success: false, message: 'actualWeight (or actualWeightQuintals) must be a positive number' });
+    }
+    if (isNaN(moisture) || moisture < 0) {
+      return res.status(422).json({ success: false, message: 'moisture (or moisturePct) must be a non-negative number' });
+    }
+    if (!grade) {
+      return res.status(422).json({ success: false, message: 'grade (or qualityGrade) is required' });
+    }
+
+    // Derive result: accept if moisture ≤ 14% (standard MSP rule)
+    // Allow the frontend to override with an explicit result field if present.
+    const result = req.body.result ?? (moisture <= 14 ? 'ACCEPTED' : 'REJECTED');
 
     const procurement = await Procurement.findOne({ 
       _id: procurementId, 
       centreId: { $in: req.user.assignedCentreIds } 
-    }).populate('cropId');
+    }).populate('cropId').populate('farmerId', 'name mobile').populate('centreId', 'name district state').populate('tokenId', 'tokenNumber');
 
     if (!procurement) {
-      return res.status(403).json({ success: false, message: 'Not authorized for this procurement' });
+      return res.status(403).json({ success: false, message: 'Not authorized for this procurement or procurement not found' });
     }
 
     const inspection = new QualityInspection({
@@ -110,8 +131,10 @@ export const submitQualityWeighment = async (req, res) => {
     });
     await inspection.save();
 
+    let createdPayment = null;
+
     if (result === 'ACCEPTED') {
-      procurement.status = 'PROCURED';
+      procurement.status = 'PAYMENT_INITIATED';
       procurement.quantity = actualWeight;
       procurement.estimatedAmount = actualWeight * procurement.cropId.mspRate;
       await procurement.save();
@@ -123,12 +146,14 @@ export const submitQualityWeighment = async (req, res) => {
         quantity: actualWeight,
         rate: procurement.cropId.mspRate,
         estimatedAmount: actualWeight * procurement.cropId.mspRate,
-        status: 'PENDING'
+        status: 'INITIATED',
+        initiatedAt: new Date()
       });
       await payment.save();
+      createdPayment = payment;
 
       await new Notification({ 
-        userId: procurement.farmerId, 
+        userId: procurement.farmerId._id ?? procurement.farmerId, 
         title: 'Procurement Successful', 
         message: `Your crop was accepted. Quality inspection passed. J-Form and Payment will be initiated shortly.` 
       }).save();
@@ -137,9 +162,14 @@ export const submitQualityWeighment = async (req, res) => {
        await procurement.save();
     }
 
-    res.json({ success: true, data: { procurement, inspection } });
+    res.json({ success: true, data: { procurement, inspection, payment: createdPayment, result } });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error('submitQualityWeighment error:', error);
+    // Return schema validation errors as 422 so the frontend sees a useful message
+    if (error.name === 'ValidationError') {
+      return res.status(422).json({ success: false, message: error.message });
+    }
+    res.status(500).json({ success: false, message: 'Server error', detail: error.message });
   }
 };
+

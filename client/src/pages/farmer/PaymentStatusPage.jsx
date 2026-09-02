@@ -5,13 +5,14 @@ import { ArrowLeft, CreditCard, Landmark, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const PaymentStatusPage = () => {
-  const [payment, setPayment] = useState(null);
+  const [payments, setPayments] = useState([]);
+  const [selectedPaymentIndex, setSelectedPaymentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     farmerApi.getDashboard().then(res => {
       if (res?.success) {
-        setPayment(res.data?.payment);
+        setPayments(res.data?.payments || []);
       }
       setLoading(false);
     });
@@ -39,8 +40,31 @@ export const PaymentStatusPage = () => {
 
       {loading ? (
         <div className="p-6 text-center text-slate-500">Loading payment details...</div>
+      ) : payments.length > 0 ? (
+        <>
+          {payments.length > 1 && (
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {payments.map((p, idx) => (
+                <button
+                  key={p.id || idx}
+                  onClick={() => setSelectedPaymentIndex(idx)}
+                  className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold border transition-colors ${
+                    idx === selectedPaymentIndex
+                      ? 'bg-brand-800 text-white border-brand-800 shadow-sm'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  {p.cropName} - {p.quantityQuintals} Q
+                </button>
+              ))}
+            </div>
+          )}
+          <PaymentOverview payment={payments[selectedPaymentIndex]} />
+        </>
       ) : (
-        <PaymentOverview payment={payment} />
+        <div className="bg-white rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
+          No payments found.
+        </div>
       )}
     </div>
   );

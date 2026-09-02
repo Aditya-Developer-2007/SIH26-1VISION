@@ -6,7 +6,9 @@ import {
   getOfficersList, 
   updateOfficerAssignment, 
   getPaymentsList, 
-  initiatePayment 
+  initiatePayment,
+  getAdminCentreOfficers,
+  getAdminOfficerDetails
 } from '../controllers/adminController.js';
 import { requireAuth, requireRole } from '../middleware/authMiddleware.js';
 
@@ -22,5 +24,9 @@ router.get('/officers', getOfficersList);
 router.put('/officers/:officerId/assignments', updateOfficerAssignment);
 router.get('/payments', getPaymentsList);
 router.post('/payments/:paymentId/initiate', initiatePayment);
+
+// Drill-down endpoints
+router.get('/drilldown/centres/:centreId/officers', getAdminCentreOfficers);
+router.get('/drilldown/officers/:officerId', getAdminOfficerDetails);
 
 export default router;

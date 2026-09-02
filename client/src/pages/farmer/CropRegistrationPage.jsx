@@ -15,6 +15,7 @@ export const CropRegistrationPage = () => {
   const [preferredDate, setPreferredDate] = useState(new Date().toISOString().split('T')[0]);
   const [preferredTime, setPreferredTime] = useState('10:00 AM - 12:00 PM');
   const [loading, setLoading] = useState(false);
+  const [successData, setSuccessData] = useState(null);
 
   const { addToast } = useToast();
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ export const CropRegistrationPage = () => {
 
       if (res?.success) {
         addToast('Crop registered! Token issued successfully', 'success');
-        navigate('/farmer/token');
+        setSuccessData(res.data);
       } else {
         addToast(res.message || 'Registration failed', 'error');
       }
@@ -80,6 +81,35 @@ export const CropRegistrationPage = () => {
         </p>
       </div>
 
+      {successData ? (
+        <div className="bg-white rounded-xl border border-emerald-200 p-8 text-center shadow-card space-y-5">
+          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900">Registration Successful!</h2>
+          <p className="text-sm text-slate-600 max-w-md mx-auto">
+            Your crop has been registered and a digital token pass has been generated.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
+            <button
+              onClick={() => {
+                setSuccessData(null);
+                setEstimatedQuintals('');
+                setAreaAcres('');
+              }}
+              className="w-full sm:w-auto bg-white border border-brand-200 hover:bg-brand-50 text-brand-800 font-bold py-2.5 px-6 rounded-lg text-sm transition"
+            >
+              + Register Another Crop
+            </button>
+            <button
+              onClick={() => navigate('/farmer')}
+              className="w-full sm:w-auto bg-brand-800 hover:bg-brand-900 text-white font-bold py-2.5 px-6 rounded-lg text-sm transition shadow-sm"
+            >
+              Go to Dashboard
+            </button>
+          </div>
+        </div>
+      ) : (
       <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-slate-200 p-6 shadow-card space-y-5 text-xs">
         
         {/* Verified revenue link alert */}
@@ -203,6 +233,7 @@ export const CropRegistrationPage = () => {
           {loading ? 'Generating Token...' : 'Confirm Slot & Issue Digital Token'}
         </button>
       </form>
+      )}
     </div>
   );
 };
