@@ -187,7 +187,13 @@ export const getCentres = async (req, res) => {
 
 export const registerCropAndBookSlot = async (req, res) => {
   try {
-    const { cropId, centreId, quantity, scheduledDate, slotStart, slotEnd } = req.body;
+    const { cropId, centreId, scheduledDate, slotStart, slotEnd } = req.body;
+    const quantity = parseFloat(req.body.quantity);
+    const areaAcres = parseFloat(req.body.areaAcres) || 0;
+
+    if (!cropId || !centreId || !quantity || isNaN(quantity)) {
+      return res.status(400).json({ success: false, message: 'cropId, centreId, and a valid quantity are required' });
+    }
     
     const crop = await Crop.findById(cropId);
     if (!crop) return res.status(404).json({ success: false, message: 'Crop not found' });
@@ -215,8 +221,8 @@ export const registerCropAndBookSlot = async (req, res) => {
 
     res.json({ success: true, data: procurement });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error('registerCropAndBookSlot error:', error);
+    res.status(500).json({ success: false, message: 'Server error', detail: error.message });
   }
 };
 
