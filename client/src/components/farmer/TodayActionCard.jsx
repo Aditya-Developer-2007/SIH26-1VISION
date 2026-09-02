@@ -49,7 +49,7 @@ export const TodayActionCard = ({ todayAction }) => {
             <span>What to carry for your slot:</span>
           </div>
           <div className="flex flex-wrap gap-2 text-xs text-white">
-            {todayAction.checklist.map((item, idx) => (
+            {(todayAction.checklist || []).map((item, idx) => (
               <span key={idx} className="bg-white/10 px-2.5 py-1 rounded border border-white/10 flex items-center gap-1">
                 ✓ {item}
               </span>

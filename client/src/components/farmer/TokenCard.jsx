@@ -109,7 +109,7 @@ export const TokenCard = ({ token }) => {
             Verification Checklist for Mandi Gate:
           </span>
           <ul className="list-disc list-inside space-y-0.5 pl-1 text-emerald-800">
-            {token.requiredDocs.map((doc, idx) => (
+            {(token.requiredDocs || ['Meri Fasal Mera Byora Registration', 'Aadhar Card', 'Bank Passbook']).map((doc, idx) => (
               <li key={idx}>{doc}</li>
             ))}
           </ul>

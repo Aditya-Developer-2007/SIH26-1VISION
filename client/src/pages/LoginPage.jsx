@@ -10,7 +10,7 @@ export const LoginPage = () => {
   const [otp, setOtp] = useState('123456');
   const [step, setStep] = useState(1); // 1: Phone, 2: OTP
   const [selectedRole, setSelectedRole] = useState('FARMER');
-  const { loginWithPhone } = useAuth();
+  const { login } = useAuth();
   const { lang, toggleLanguage } = useLanguage();
   const { addToast } = useToast();
   const navigate = useNavigate();
@@ -27,12 +27,17 @@ export const LoginPage = () => {
 
   const handleVerify = async (e) => {
     e.preventDefault();
-    const res = await loginWithPhone(phone, otp, selectedRole);
-    if (res?.success) {
-      addToast('Authenticated successfully', 'success');
-      if (selectedRole === 'OFFICER') navigate('/officer');
-      else if (selectedRole === 'ADMIN') navigate('/admin');
-      else navigate('/farmer');
+    try {
+      const res = await login({ mobile: phone, password: 'password123' });
+      if (res?.role) {
+        addToast('Authenticated successfully', 'success');
+        if (res.role === 'OFFICER') navigate('/officer');
+        else if (res.role === 'ADMIN') navigate('/admin');
+        else navigate('/farmer');
+      }
+    } catch (error) {
+       const msg = error.response?.data?.message || error.message || 'Authentication failed';
+       addToast(msg, 'error');
     }
   };
 

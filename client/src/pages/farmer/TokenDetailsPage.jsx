@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { TokenCard } from '../../components/farmer/TokenCard';
-import { getFarmerDashboard } from '../../services/api';
+import { farmerApi } from '../../services/farmerApi';
 import { ArrowLeft, QrCode } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -9,7 +9,7 @@ export const TokenDetailsPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getFarmerDashboard().then(res => {
+    farmerApi.getDashboard().then(res => {
       if (res?.success) {
         setToken(res.token);
       }

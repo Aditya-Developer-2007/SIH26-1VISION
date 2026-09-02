@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { getFarmerDashboard } from '../../services/api';
+import { farmerApi } from '../../services/farmerApi';
 
 import { TodayActionCard } from '../../components/farmer/TodayActionCard';
 import { CropJourneyTimeline } from '../../components/farmer/CropJourneyTimeline';
@@ -22,9 +22,9 @@ export const FarmerDashboard = () => {
 
   useEffect(() => {
     let isMounted = true;
-    getFarmerDashboard().then(res => {
+    farmerApi.getDashboard().then(res => {
       if (isMounted && res?.success) {
-        setData(res);
+        setData(res.data);
       }
       if (isMounted) setLoading(false);
     });

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { PaymentOverview } from '../../components/farmer/PaymentOverview';
-import { getFarmerDashboard } from '../../services/api';
+import { farmerApi } from '../../services/farmerApi';
 import { ArrowLeft, CreditCard, Landmark, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -9,7 +9,7 @@ export const PaymentStatusPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getFarmerDashboard().then(res => {
+    farmerApi.getDashboard().then(res => {
       if (res?.success) {
         setPayment(res.payment);
       }

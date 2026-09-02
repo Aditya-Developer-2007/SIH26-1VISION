@@ -1,9 +1,14 @@
-import { demoStore } from '../utils/demoStore.js';
+import Document from '../models/Document.js';
 
 export const downloadDocument = async (req, res) => {
   try {
     const { id } = req.params;
-    const doc = demoStore.documents.find(d => d.id === id || d.docNumber === id) || demoStore.documents[0];
+    const doc = await Document.findById(id).populate('farmerId').populate('procurementId').populate('centreId');
+    if (!doc) return res.status(404).send('Document not found');
+
+    if (req.user.role === 'FARMER' && doc.farmerId?._id.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Not authorized for this document' });
+    }
 
     const htmlContent = `
     <!DOCTYPE html>
@@ -33,8 +38,8 @@ export const downloadDocument = async (req, res) => {
             <div class="subtitle">Government Procurement Experience Layer | SIH 2026</div>
           </div>
           <div style="text-align: right;">
-            <div style="font-weight: bold; color: #166534;">${doc.docNumber}</div>
-            <div class="subtitle">${doc.date}</div>
+            <div style="font-weight: bold; color: #166534;">${doc._id}</div>
+            <div class="subtitle">${new Date(doc.createdAt).toLocaleDateString()}</div>
           </div>
         </div>
 
@@ -42,19 +47,15 @@ export const downloadDocument = async (req, res) => {
 
         <div class="row">
           <span class="label">Farmer Name</span>
-          <span class="value">${doc.farmerName}</span>
+          <span class="value">${doc.farmerId?.name || 'N/A'}</span>
         </div>
         <div class="row">
-          <span class="label">Crop & Quantity</span>
-          <span class="value">${doc.crop}</span>
-        </div>
-        <div class="row">
-          <span class="label">Amount / Status</span>
-          <span class="value" style="color: #166534;">${doc.amount}</span>
+          <span class="label">Status</span>
+          <span class="value">${doc.status}</span>
         </div>
         <div class="row">
           <span class="label">Procurement Centre</span>
-          <span class="value">Mandi Bhawan, Sector 12</span>
+          <span class="value">${doc.centreId?.name || 'Mandi Bhawan'}</span>
         </div>
         <div class="row">
           <span class="label">Verification Authority</span>

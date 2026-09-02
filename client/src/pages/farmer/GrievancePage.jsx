@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getGrievances, createGrievance } from '../../services/api';
+import { farmerApi } from '../../services/farmerApi';
 import { useToast } from '../../context/ToastContext';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { HelpCircle, MessageSquare, Plus, Send, ShieldCheck } from 'lucide-react';
@@ -13,7 +13,7 @@ export const GrievancePage = () => {
   const { addToast } = useToast();
 
   const fetchGrievances = () => {
-    getGrievances().then(res => {
+    farmerApi.getGrievances().then(res => {
       if (res?.success) {
         setGrievances(res.grievances || []);
       }
@@ -28,7 +28,7 @@ export const GrievancePage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await createGrievance({ category, subject, description });
+      const res = await farmerApi.createGrievance({ category, subject, description });
       if (res?.success) {
         addToast('Grievance complaint submitted successfully', 'success');
         setSubject('');

@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { getAdminDashboard } from '../../services/api';
-import { StatusBadge } from '../../components/common/StatusBadge';
-import { Landmark, Users, Building2, Download, TrendingUp, AlertTriangle, FileText, CheckCircle2 } from 'lucide-react';
+import { adminApi } from '../../services/adminApi';
+import { Building2, Users, Search, Activity, ShieldAlert, BarChart3, Download } from 'lucide-react';
 
 export const AdminDashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getAdminDashboard().then(res => {
+    let isMounted = true;
+    adminApi.getDashboard().then(res => {
       if (res?.success) {
-        setData(res);
+        setData(res.data);
       }
       setLoading(false);
     });
+    return () => { isMounted = false; };
   }, []);
 
   const handleExportCsv = () => {

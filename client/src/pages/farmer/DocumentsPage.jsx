@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getDocuments } from '../../services/api';
+import { farmerApi } from '../../services/farmerApi';
 import { FileText, Download, ShieldCheck, Printer } from 'lucide-react';
 import { StatusBadge } from '../../components/common/StatusBadge';
 
@@ -8,7 +8,7 @@ export const DocumentsPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getDocuments().then(res => {
+    farmerApi.getDocuments().then(res => {
       if (res?.success) {
         setDocuments(res.documents || []);
       }

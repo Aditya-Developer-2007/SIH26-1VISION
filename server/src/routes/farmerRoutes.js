@@ -1,12 +1,36 @@
 import express from 'express';
-import { getFarmerDashboard, registerCropAndBookSlot, getProcurementById, getDocuments } from '../controllers/farmerController.js';
-import { protect } from '../middleware/auth.js';
+import { 
+  getFarmerDashboard, 
+  getFarmerProcurements, 
+  getFarmerProcurementById,
+  getFarmerPaymentById,
+  getFarmerProfile, 
+  updateFarmerProfile, 
+  getCrops, 
+  getCentres, 
+  registerCropAndBookSlot, 
+  getFarmerDocuments, 
+  getFarmerGrievances, 
+  createFarmerGrievance 
+} from '../controllers/farmerController.js';
+import { requireAuth, requireRole, requireSelfAccess } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.get('/dashboard', protect, getFarmerDashboard);
-router.post('/register-crop', protect, registerCropAndBookSlot);
-router.get('/procurement/:id', protect, getProcurementById);
-router.get('/documents', protect, getDocuments);
+router.use(requireAuth);
+router.use(requireRole('FARMER'));
+
+router.get('/dashboard', getFarmerDashboard);
+router.get('/procurements', getFarmerProcurements);
+router.get('/procurements/:id', requireSelfAccess, getFarmerProcurementById);
+router.post('/procurements', registerCropAndBookSlot);
+router.get('/payments/:id', requireSelfAccess, getFarmerPaymentById);
+router.get('/profile', getFarmerProfile);
+router.put('/profile', updateFarmerProfile);
+router.get('/crops', getCrops);
+router.get('/centres', getCentres);
+router.get('/documents', getFarmerDocuments);
+router.get('/grievances', getFarmerGrievances);
+router.post('/grievances', createFarmerGrievance);
 
 export default router;

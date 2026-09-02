@@ -11,7 +11,11 @@ import centreRoutes from './routes/centreRoutes.js';
 import grievanceRoutes from './routes/grievanceRoutes.js';
 import documentRoutes from './routes/documentRoutes.js';
 
+import connectDB from './config/db.js';
+
 dotenv.config();
+
+connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;

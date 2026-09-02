@@ -1,56 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerCropAndBookSlot } from '../../services/api';
+import { farmerApi } from '../../services/farmerApi';
 import { useToast } from '../../context/ToastContext';
 import { Sprout, Calendar, Clock, MapPin, Scale, CheckCircle2, ShieldCheck } from 'lucide-react';
 
 export const CropRegistrationPage = () => {
-  const [cropId, setCropId] = useState('crop_1');
+  const [crops, setCrops] = useState([]);
+  const [centres, setCentres] = useState([]);
+  
+  const [cropId, setCropId] = useState('');
   const [areaAcres, setAreaAcres] = useState('2.5');
   const [estimatedQuintals, setEstimatedQuintals] = useState('18.5');
-  const [centreId, setCentreId] = useState('centre_1');
-  const [preferredDate, setPreferredDate] = useState('2026-09-02');
+  const [centreId, setCentreId] = useState('');
+  const [preferredDate, setPreferredDate] = useState(new Date().toISOString().split('T')[0]);
   const [preferredTime, setPreferredTime] = useState('10:00 AM - 12:00 PM');
   const [loading, setLoading] = useState(false);
 
   const { addToast } = useToast();
   const navigate = useNavigate();
 
-  const crops = [
-    { id: 'crop_1', name: 'Wheat (गेहूं)', msp: 2425 },
-    { id: 'crop_2', name: 'Paddy (धान)', msp: 2300 },
-    { id: 'crop_3', name: 'Mustard (सरसों)', msp: 5650 }
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [cropsRes, centresRes] = await Promise.all([
+          farmerApi.getCrops(),
+          farmerApi.getCentres()
+        ]);
+        if (cropsRes.success && cropsRes.data.length > 0) {
+          setCrops(cropsRes.data);
+          setCropId(cropsRes.data[0]._id);
+        }
+        if (centresRes.success && centresRes.data.length > 0) {
+          setCentres(centresRes.data);
+          setCentreId(centresRes.data[0]._id);
+        }
+      } catch (error) {
+        addToast('Failed to load form data', 'error');
+      }
+    };
+    fetchData();
+  }, []);
 
-  const centres = [
-    { id: 'centre_1', name: 'Mandi Bhawan, Sector 12', dist: '2.4 km' },
-    { id: 'centre_2', name: 'Krishi Procurement Centre', dist: '5.8 km' },
-    { id: 'centre_3', name: 'District Grain Market Yard', dist: '14.2 km' }
-  ];
-
-  const selectedCrop = crops.find(c => c.id === cropId) || crops[0];
-  const calculatedTotal = (Number(estimatedQuintals) || 0) * selectedCrop.msp;
+  const selectedCrop = crops.find(c => c._id === cropId) || { mspRate: 0 };
+  const calculatedTotal = (Number(estimatedQuintals) || 0) * selectedCrop.mspRate;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await registerCropAndBookSlot({
+      const res = await farmerApi.registerCropAndBookSlot({
         cropId,
         areaAcres,
-        estimatedQuintals,
+        quantity: estimatedQuintals,
         centreId,
-        preferredDate,
-        preferredTime
+        scheduledDate: preferredDate,
+        slotStart: preferredTime.split(' - ')[0],
+        slotEnd: preferredTime.split(' - ')[1]
       });
 
       if (res?.success) {
-        addToast(`Crop registered! Token ${res.token?.tokenNumber} issued successfully`, 'success');
+        addToast('Crop registered! Token issued successfully', 'success');
         navigate('/farmer/token');
+      } else {
+        addToast(res.message || 'Registration failed', 'error');
       }
     } catch (err) {
-      addToast('Slot booked! Redirecting to token pass...', 'success');
-      navigate('/farmer/token');
+      addToast('Error registering crop', 'error');
     } finally {
       setLoading(false);
     }
@@ -82,17 +97,17 @@ export const CropRegistrationPage = () => {
           <div className="grid grid-cols-3 gap-3">
             {crops.map((c) => (
               <button
-                key={c.id}
+                key={c._id}
                 type="button"
-                onClick={() => setCropId(c.id)}
+                onClick={() => setCropId(c._id)}
                 className={`p-3 rounded-lg border text-left transition ${
-                  cropId === c.id
+                  cropId === c._id
                     ? 'border-brand-800 bg-brand-50 text-brand-900 font-bold ring-2 ring-brand-700/20'
                     : 'border-slate-200 hover:border-slate-300 text-slate-700'
                 }`}
               >
                 <div className="font-bold text-sm">{c.name}</div>
-                <div className="text-[10px] text-slate-500 mt-1">MSP: ₹{c.msp} / Quintal</div>
+                <div className="text-[10px] text-slate-500 mt-1">MSP: ₹{c.mspRate} / Quintal</div>
               </button>
             ))}
           </div>
@@ -133,8 +148,8 @@ export const CropRegistrationPage = () => {
             className="w-full p-2.5 border border-slate-300 rounded-lg font-bold text-slate-900 focus:ring-2 focus:ring-brand-700 focus:outline-none"
           >
             {centres.map(cnt => (
-              <option key={cnt.id} value={cnt.id}>
-                {cnt.name} ({cnt.dist} away)
+              <option key={cnt._id} value={cnt._id}>
+                {cnt.name} - {cnt.district}
               </option>
             ))}
           </select>
@@ -175,7 +190,7 @@ export const CropRegistrationPage = () => {
             </span>
           </div>
           <span className="text-[11px] text-slate-500 font-medium">
-            Calculated: {estimatedQuintals} Q × ₹{selectedCrop.msp}
+            Calculated: {estimatedQuintals} Q × ₹{selectedCrop.mspRate}
           </span>
         </div>
 

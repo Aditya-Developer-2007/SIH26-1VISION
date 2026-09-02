@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CentreCard } from '../../components/farmer/CentreCard';
-import { getCentres } from '../../services/api';
+import { farmerApi } from '../../services/farmerApi';
 import { Search, MapPin, Building2, Sparkles } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 
@@ -11,7 +11,7 @@ export const CentresPage = () => {
   const { addToast } = useToast();
 
   useEffect(() => {
-    getCentres(search).then(res => {
+    farmerApi.getCentres(search).then(res => {
       if (res?.success) {
         setCentres(res.centres || []);
       }

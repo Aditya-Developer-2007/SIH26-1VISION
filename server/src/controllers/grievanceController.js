@@ -1,8 +1,9 @@
-import { demoStore } from '../utils/demoStore.js';
+import Grievance from '../models/Grievance.js';
 
 export const getGrievances = async (req, res) => {
   try {
-    const grievances = demoStore.grievances;
+    const query = req.user.role === 'ADMIN' ? {} : (req.user.role === 'OFFICER' ? { centreId: { $in: req.user.assignedCentreIds } } : { farmerId: req.user._id });
+    const grievances = await Grievance.find(query).populate('farmerId', 'name mobile');
     return res.status(200).json({ success: true, grievances });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
@@ -11,23 +12,18 @@ export const getGrievances = async (req, res) => {
 
 export const createGrievance = async (req, res) => {
   try {
-    const { category, subject, description } = req.body;
+    const { category, subject, description, centreId } = req.body;
     
-    const newGrievance = {
-      id: `grv_${Date.now()}`,
-      ticketNumber: `GRV-2026-${Math.floor(1000 + Math.random() * 9000)}`,
-      farmerId: req.user?.id || 'u_farmer_1',
-      farmerName: req.user?.name || 'Ramesh Kumar',
-      farmerPhone: req.user?.phone || '9876543210',
+    const newGrievance = new Grievance({
+      farmerId: req.user._id,
+      centreId,
       category: category || 'PAYMENT',
       subject,
       description,
-      status: 'SUBMITTED',
-      createdAt: 'Just now',
-      updatedAt: 'Just now'
-    };
+      status: 'SUBMITTED'
+    });
 
-    demoStore.grievances.unshift(newGrievance);
+    await newGrievance.save();
 
     return res.status(201).json({
       success: true,
@@ -44,14 +40,14 @@ export const respondGrievance = async (req, res) => {
     const { id } = req.params;
     const { response, status = 'RESOLVED' } = req.body;
 
-    const grv = demoStore.grievances.find(g => g.id === id || g.ticketNumber === id);
+    const grv = await Grievance.findById(id);
     if (!grv) {
       return res.status(404).json({ success: false, message: 'Grievance ticket not found' });
     }
 
     grv.response = response;
     grv.status = status;
-    grv.updatedAt = 'Just now';
+    await grv.save();
 
     return res.status(200).json({
       success: true,

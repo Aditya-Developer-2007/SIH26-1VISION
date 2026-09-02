@@ -25,8 +25,11 @@ import { ProfilePage } from './pages/farmer/ProfilePage';
 import { OfficerDashboard } from './pages/officer/OfficerDashboard';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 
+import { ProtectedRoute, RoleRoute } from './components/common/ProtectedRoutes';
+
 const MainLayout = () => {
-  const { role } = useAuth();
+  const { user } = useAuth();
+  const role = user?.role;
 
   return (
     <div className="min-h-screen flex flex-col bg-paper-50">
@@ -45,7 +48,12 @@ export default function App() {
     <AuthProvider>
       <LanguageProvider>
         <ToastProvider>
-          <BrowserRouter>
+          <BrowserRouter
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+            }}
+          >
             <Routes>
               {/* Public Landing & Login */}
               <Route path="/" element={<LandingPage />} />
@@ -53,21 +61,30 @@ export default function App() {
 
               {/* Main Authenticated Layout */}
               <Route element={<MainLayout />}>
+                
                 {/* Farmer Routes */}
-                <Route path="/farmer" element={<FarmerDashboard />} />
-                <Route path="/farmer/register-crop" element={<CropRegistrationPage />} />
-                <Route path="/farmer/token" element={<TokenDetailsPage />} />
-                <Route path="/farmer/journey" element={<CropJourneyPage />} />
-                <Route path="/farmer/payments" element={<PaymentStatusPage />} />
-                <Route path="/farmer/centres" element={<CentresPage />} />
-                <Route path="/farmer/documents" element={<DocumentsPage />} />
-                <Route path="/farmer/notifications" element={<NotificationsPage />} />
-                <Route path="/farmer/grievances" element={<GrievancePage />} />
-                <Route path="/farmer/profile" element={<ProfilePage />} />
+                <Route element={<RoleRoute role="FARMER" />}>
+                  <Route path="/farmer" element={<FarmerDashboard />} />
+                  <Route path="/farmer/register-crop" element={<CropRegistrationPage />} />
+                  <Route path="/farmer/token" element={<TokenDetailsPage />} />
+                  <Route path="/farmer/journey" element={<CropJourneyPage />} />
+                  <Route path="/farmer/payments" element={<PaymentStatusPage />} />
+                  <Route path="/farmer/centres" element={<CentresPage />} />
+                  <Route path="/farmer/documents" element={<DocumentsPage />} />
+                  <Route path="/farmer/notifications" element={<NotificationsPage />} />
+                  <Route path="/farmer/grievances" element={<GrievancePage />} />
+                  <Route path="/farmer/profile" element={<ProfilePage />} />
+                </Route>
 
-                {/* Officer & Admin Portals */}
-                <Route path="/officer" element={<OfficerDashboard />} />
-                <Route path="/admin" element={<AdminDashboard />} />
+                {/* Officer Routes */}
+                <Route element={<RoleRoute role="OFFICER" />}>
+                  <Route path="/officer" element={<OfficerDashboard />} />
+                </Route>
+
+                {/* Admin Routes */}
+                <Route element={<RoleRoute role="ADMIN" />}>
+                  <Route path="/admin" element={<AdminDashboard />} />
+                </Route>
               </Route>
 
               {/* Catch all redirect to home */}

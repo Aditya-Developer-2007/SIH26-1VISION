@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getFarmerDashboard } from '../../services/api';
+import { farmerApi } from '../../services/farmerApi';
 import { Bell, CheckCircle2, Clock, Info, ShieldAlert } from 'lucide-react';
 
 export const NotificationsPage = () => {
@@ -7,7 +7,7 @@ export const NotificationsPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getFarmerDashboard().then(res => {
+    farmerApi.getDashboard().then(res => {
       if (res?.success) {
         setNotifications(res.notifications || []);
       }

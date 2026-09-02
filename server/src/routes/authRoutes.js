@@ -1,11 +1,10 @@
 import express from 'express';
-import { login, verifyOtp, getMe } from '../controllers/authController.js';
-import { protect } from '../middleware/auth.js';
+import { loginUser, getUserProfile } from '../controllers/authController.js';
+import { requireAuth } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/login', login);
-router.post('/verify-otp', verifyOtp);
-router.get('/me', protect, getMe);
+router.post('/login', loginUser);
+router.get('/me', requireAuth, getUserProfile);
 
 export default router;

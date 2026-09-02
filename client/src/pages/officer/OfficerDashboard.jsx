@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { getOfficerDashboard, verifyToken, submitWeighment } from '../../services/api';
+import { officerApi } from '../../services/officerApi';
+import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
+import { StatusBadge } from '../../components/common/StatusBadge';
+import { useToast } from '../../context/ToastContext';
 import { ArrivalTable } from '../../components/officer/ArrivalTable';
 import { WeighmentModal } from '../../components/officer/WeighmentModal';
-import { useToast } from '../../context/ToastContext';
-import { Shield, Scale, Search, Users, CheckCircle2, Clock, FileText } from 'lucide-react';
+import { CheckCircle2, Search, Filter, ArrowRight, ShieldCheck, QrCode, AlertCircle, TrendingUp, Users, Shield, Scale, Clock, FileText } from 'lucide-react';
 
 export const OfficerDashboard = () => {
+  const { user } = useAuth();
+  const { t } = useLanguage();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedProcurement, setSelectedProcurement] = useState(null);
@@ -15,9 +20,9 @@ export const OfficerDashboard = () => {
   const { addToast } = useToast();
 
   const fetchDashboard = () => {
-    getOfficerDashboard().then(res => {
+    officerApi.getDashboard().then(res => {
       if (res?.success) {
-        setData(res);
+        setData(res.data);
       }
       setLoading(false);
     });
@@ -28,17 +33,13 @@ export const OfficerDashboard = () => {
   }, []);
 
   const handleInspectToken = (tokenNumber) => {
-    verifyToken(tokenNumber).then(res => {
-      if (res?.success) {
-        setSelectedProcurement(res.procurement);
-        setIsModalOpen(true);
-      } else {
-        addToast(`Token ${tokenNumber} found in queue`, 'info');
-        const item = data?.arrivals?.find(a => a.tokenId === tokenNumber) || data?.arrivals?.[0];
-        setSelectedProcurement(item);
-        setIsModalOpen(true);
-      }
-    });
+    const item = data?.arrivals?.find(a => a.tokenId === tokenNumber);
+    if (item) {
+      setSelectedProcurement(item);
+      setIsModalOpen(true);
+    } else {
+      addToast(`Token ${tokenNumber} not found in queue`, 'error');
+    }
   };
 
   const handleSearchSubmit = (e) => {
@@ -50,14 +51,16 @@ export const OfficerDashboard = () => {
 
   const handleSaveWeighment = async (payload) => {
     try {
-      const res = await submitWeighment(payload);
+      const res = await officerApi.submitWeighment(selectedProcurement.id, payload);
       if (res?.success) {
-        addToast(`Quality inspection recorded! J-Form issued for ${res.procurement?.farmerName}`, 'success');
+        addToast(`Quality inspection recorded! J-Form issued for ${selectedProcurement.farmerName}`, 'success');
+        setIsModalOpen(false);
         fetchDashboard();
+      } else {
+         addToast(res?.message || 'Error saving quality inspection', 'error');
       }
     } catch (err) {
-      addToast('Quality inspection saved & J-Form generated!', 'success');
-      fetchDashboard();
+      addToast('Error saving quality inspection', 'error');
     }
   };
 
