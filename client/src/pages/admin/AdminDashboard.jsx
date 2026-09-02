@@ -54,25 +54,25 @@ export const AdminDashboard = () => {
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 text-xs">
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
           <span className="text-slate-500 block uppercase font-medium">Registered Farmers</span>
-          <span className="text-xl font-black text-slate-900 block mt-1">{kpis.totalRegisteredFarmers?.toLocaleString('en-IN')}</span>
+          <span className="text-xl font-black text-slate-900 block mt-1">{(kpis.totalRegisteredFarmers || 0).toLocaleString('en-IN')}</span>
           <span className="text-[10px] text-emerald-600 font-semibold">+12% this season</span>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
           <span className="text-slate-500 block uppercase font-medium">Today's Yield</span>
-          <span className="text-xl font-black text-brand-900 block mt-1">{kpis.todayProcurementQuintals} Q</span>
-          <span className="text-[10px] text-slate-400">Across 18 centres</span>
+          <span className="text-xl font-black text-brand-900 block mt-1">{kpis.todayProcurementQuintals || 0} Q</span>
+          <span className="text-[10px] text-slate-400">Across {kpis.activeCentresCount || 0} centres</span>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
           <span className="text-slate-500 block uppercase font-medium">Total DBT Payout</span>
-          <span className="text-xl font-black text-emerald-700 block mt-1">₹{(kpis.totalPayoutAmount / 100000).toFixed(2)} Lakhs</span>
+          <span className="text-xl font-black text-emerald-700 block mt-1">₹{((kpis.totalPayoutAmount || 0) / 100000).toFixed(2)} Lakhs</span>
           <span className="text-[10px] text-emerald-800 font-semibold">100% MSP Rate</span>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
           <span className="text-slate-500 block uppercase font-medium">Active Mandis</span>
-          <span className="text-xl font-black text-slate-900 block mt-1">{kpis.activeCentresCount}</span>
+          <span className="text-xl font-black text-slate-900 block mt-1">{kpis.activeCentresCount || 0}</span>
           <span className="text-[10px] text-slate-400">Fully operational</span>
         </div>
 
@@ -108,6 +108,7 @@ export const AdminDashboard = () => {
                 <span className="text-[10px] text-slate-400 block text-right">Payout: ₹{item.totalPayout?.toLocaleString('en-IN')}</span>
               </div>
             ))}
+            {cropBreakdown.length === 0 && <div className="text-center text-slate-500 py-8 italic bg-slate-50 rounded-lg">No procurements recorded today.</div>}
           </div>
         </div>
 

@@ -108,25 +108,25 @@ export const OfficerDashboard = () => {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
           <span className="text-slate-500 block uppercase font-medium">Today's Scheduled</span>
-          <span className="text-2xl font-black text-slate-900 block mt-1">{stats.todayScheduled || 22}</span>
+          <span className="text-2xl font-black text-slate-900 block mt-1">{stats.todayScheduled || 0}</span>
           <span className="text-[10px] text-slate-400">Total gate tokens</span>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
           <span className="text-slate-500 block uppercase font-medium">Quality Pending</span>
-          <span className="text-2xl font-black text-amber-600 block mt-1">{stats.qualityPending || 5}</span>
+          <span className="text-2xl font-black text-amber-600 block mt-1">{stats.qualityPending || 0}</span>
           <span className="text-[10px] text-amber-700">Awaiting scale check</span>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
           <span className="text-slate-500 block uppercase font-medium">Completed Weighments</span>
-          <span className="text-2xl font-black text-emerald-700 block mt-1">{stats.completedToday || 14}</span>
+          <span className="text-2xl font-black text-emerald-700 block mt-1">{stats.completedToday || 0}</span>
           <span className="text-[10px] text-emerald-800">J-Forms auto-issued</span>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
           <span className="text-slate-500 block uppercase font-medium">Total Procured Today</span>
-          <span className="text-2xl font-black text-brand-900 block mt-1">{stats.totalProcuredQuintals || 412.5} Q</span>
+          <span className="text-2xl font-black text-brand-900 block mt-1">{stats.totalProcuredQuintals || 0} Q</span>
           <span className="text-[10px] text-slate-400">Wheat yield received</span>
         </div>
       </div>
