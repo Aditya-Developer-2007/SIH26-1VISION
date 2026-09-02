@@ -13,7 +13,7 @@ export const CentresPage = () => {
   useEffect(() => {
     farmerApi.getCentres(search).then(res => {
       if (res?.success) {
-        setCentres(res.centres || []);
+        setCentres(res.data || []);
       }
       setLoading(false);
     });

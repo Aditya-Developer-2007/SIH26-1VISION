@@ -11,7 +11,7 @@ export const TokenDetailsPage = () => {
   useEffect(() => {
     farmerApi.getDashboard().then(res => {
       if (res?.success) {
-        setToken(res.token);
+        setToken(res.data?.token);
       }
       setLoading(false);
     });

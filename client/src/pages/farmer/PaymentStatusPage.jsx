@@ -11,7 +11,7 @@ export const PaymentStatusPage = () => {
   useEffect(() => {
     farmerApi.getDashboard().then(res => {
       if (res?.success) {
-        setPayment(res.payment);
+        setPayment(res.data?.payment);
       }
       setLoading(false);
     });

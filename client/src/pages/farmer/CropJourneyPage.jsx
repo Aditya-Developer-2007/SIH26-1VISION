@@ -11,7 +11,7 @@ export const CropJourneyPage = () => {
   useEffect(() => {
     farmerApi.getDashboard().then(res => {
       if (res?.success) {
-        setJourneySteps(res.journeySteps || []);
+        setJourneySteps(res.data?.journeySteps || []);
       }
       setLoading(false);
     });
