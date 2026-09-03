@@ -43,12 +43,19 @@ export const TokenCard = ({ token }) => {
       <div className="p-5 space-y-4">
         {/* QR Code & Essential Details */}
         <div className="flex flex-col sm:flex-row items-center gap-5 p-4 bg-paper-50 rounded-lg border border-slate-200">
-          <div className="bg-white p-2.5 rounded-lg border border-slate-300 shadow-sm shrink-0">
+          <div className="bg-white p-2.5 rounded-lg border border-slate-300 shadow-sm shrink-0 relative">
             <img
               src={qrUrl}
               alt={`QR Code for ${token.tokenNumber}`}
-              className="w-36 h-36 object-contain"
+              className={`w-36 h-36 object-contain ${token.status?.toUpperCase() === 'EXPIRED' ? 'opacity-30' : ''}`}
             />
+            {token.status?.toUpperCase() === 'EXPIRED' && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <span className="bg-red-600 text-white font-bold py-1.5 px-4 rounded text-xl transform -rotate-12 border-2 border-white shadow-lg uppercase tracking-widest whitespace-nowrap">
+                  Expired
+                </span>
+              </div>
+            )}
             <span className="text-[10px] font-mono text-center block text-slate-500 mt-1">
               SCAN AT MANDI GATE
             </span>

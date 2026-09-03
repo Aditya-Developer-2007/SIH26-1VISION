@@ -17,7 +17,8 @@ export const StatusBadge = ({ status }) => {
     PENDING: { label: 'Pending', bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', icon: Clock },
     SUBMITTED: { label: 'Submitted', bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', icon: Clock },
     RESOLVED: { label: 'Resolved', bg: 'bg-emerald-50', text: 'text-emerald-800', border: 'border-emerald-200', icon: CheckCircle },
-    OPEN: { label: 'Open', bg: 'bg-emerald-50', text: 'text-emerald-800', border: 'border-emerald-200', icon: Check }
+    OPEN: { label: 'Open', bg: 'bg-emerald-50', text: 'text-emerald-800', border: 'border-emerald-200', icon: Check },
+    EXPIRED: { label: 'Expired', bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200', icon: AlertCircle }
   };
 
   const config = configs[normalized] || {

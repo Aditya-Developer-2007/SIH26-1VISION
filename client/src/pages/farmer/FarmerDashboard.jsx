@@ -212,8 +212,8 @@ export const FarmerDashboard = () => {
                 View All Centres
               </Link>
             </div>
-            {nearbyCentres.map((centre) => (
-              <CentreCard key={centre.id} centre={centre} />
+            {nearbyCentres.map((centre, idx) => (
+              <CentreCard key={centre._id || centre.id || idx} centre={centre} />
             ))}
           </div>
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { farmerApi } from '../../services/farmerApi';
 import { useToast } from '../../context/ToastContext';
-import { Sprout, Calendar, Clock, MapPin, Scale, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, ShieldCheck } from 'lucide-react';
 
 export const CropRegistrationPage = () => {
   const [crops, setCrops] = useState([]);
