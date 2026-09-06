@@ -44,7 +44,7 @@ export const TokenDetailsPage = () => {
       </div>
 
       {tokens.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
           {tokens.map((t, idx) => (
             <button
               key={t.id}

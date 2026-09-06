@@ -22,8 +22,11 @@ export const PaymentOverview = ({ payment }) => {
       {/* Quintals x MSP breakdown */}
       <div className="bg-paper-50 rounded-lg p-4 border border-slate-200 grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
         <div>
-          <span className="text-xs text-slate-500 block">Crop & Quantity</span>
-          <span className="font-bold text-slate-900">{payment.cropName} ({payment.quantityQuintals} Quintal)</span>
+          <span className="text-xs text-slate-500 block">Accepted Quantity</span>
+          <span className="font-bold text-slate-900">{payment.cropName} ({payment.quantityQuintals} Q)</span>
+          {payment.estimatedQuantityQuintals && payment.estimatedQuantityQuintals !== payment.quantityQuintals && (
+            <span className="block text-[10px] text-slate-500 mt-0.5">Estimated: {payment.estimatedQuantityQuintals} Q</span>
+          )}
         </div>
         <div>
           <span className="text-xs text-slate-500 block">Govt. MSP Rate</span>
@@ -86,7 +89,7 @@ export const PaymentOverview = ({ payment }) => {
           PFMS Direct Transfer Verified
         </span>
         <button
-          onClick={() => window.open('/api/documents/download/doc_1', '_blank')}
+          onClick={() => window.open(`${import.meta.env.VITE_API_URL || '/api'}/documents/download/doc_1`, '_blank')}
           className="text-brand-800 font-bold hover:underline flex items-center gap-1"
         >
           View J-Form Receipt

@@ -6,7 +6,7 @@ export const TokenCard = ({ token }) => {
   if (!token) return null;
 
   const handleDownload = () => {
-    window.open(`/api/documents/download/doc_2`, '_blank');
+    window.open(`${import.meta.env.VITE_API_URL || '/api'}/documents/download/doc_2`, '_blank');
   };
 
   const handleShare = () => {

@@ -43,7 +43,7 @@ export const PaymentStatusPage = () => {
       ) : payments.length > 0 ? (
         <>
           {payments.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
               {payments.map((p, idx) => (
                 <button
                   key={p.id || idx}

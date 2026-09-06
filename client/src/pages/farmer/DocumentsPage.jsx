@@ -17,7 +17,7 @@ export const DocumentsPage = () => {
   }, []);
 
   const handleDownload = (doc) => {
-    window.open(`/api/documents/download/${doc.id}`, '_blank');
+    window.open(`${import.meta.env.VITE_API_URL || '/api'}/documents/download/${doc.id}`, '_blank');
   };
 
   return (

@@ -41,3 +41,10 @@ body {
   padding-bottom: 84px;
 }
 
+/* Scanner active background removal */
+body.scanner-active {
+  background: transparent !important;
+}
+body.scanner-active #root {
+  background: transparent !important;
+}

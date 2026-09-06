@@ -8,6 +8,8 @@ import { ArrivalTable } from '../../components/officer/ArrivalTable';
 import { WeighmentModal } from '../../components/officer/WeighmentModal';
 import { OfficerBillModal } from '../../components/officer/OfficerBillModal';
 import { CheckCircle2, Search, Filter, ArrowRight, ShieldCheck, QrCode, AlertCircle, TrendingUp, Users, Shield, Scale, Clock, FileText } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
+import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 
 export const OfficerDashboard = () => {
   const { user } = useAuth();
@@ -22,6 +24,33 @@ export const OfficerDashboard = () => {
 
   const { addToast } = useToast();
 
+  const [isScanning, setIsScanning] = useState(false);
+  const isNative = Capacitor.isNativePlatform();
+
+  const startScan = async () => {
+    try {
+      await BarcodeScanner.checkPermission({ force: true });
+      BarcodeScanner.hideBackground();
+      document.body.classList.add('scanner-active');
+      setIsScanning(true);
+      const result = await BarcodeScanner.startScan();
+      if (result.hasContent) {
+        setSearchTokenInput(result.content);
+        handleInspectToken(result.content);
+      }
+    } catch (e) {
+      addToast('Camera permission denied or scanner error', 'error');
+    } finally {
+      stopScan();
+    }
+  };
+
+  const stopScan = () => {
+    BarcodeScanner.showBackground();
+    BarcodeScanner.stopScan();
+    document.body.classList.remove('scanner-active');
+    setIsScanning(false);
+  };
   const fetchDashboard = () => {
     officerApi.getDashboard().then(res => {
       if (res?.success) {
@@ -80,7 +109,7 @@ export const OfficerDashboard = () => {
   const stats = data?.stats || {};
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+    <div className={`space-y-6 max-w-7xl mx-auto pb-12 ${isScanning ? 'opacity-0' : 'opacity-100'}`}>
       {/* Officer Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900 text-white p-6 rounded-2xl shadow-card">
         <div>
@@ -110,6 +139,16 @@ export const OfficerDashboard = () => {
           >
             Verify
           </button>
+          {isNative && (
+            <button
+              type="button"
+              onClick={isScanning ? stopScan : startScan}
+              className="bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-1"
+            >
+              <QrCode className="w-4 h-4" />
+              {isScanning ? 'Stop' : 'Scan QR'}
+            </button>
+          )}
         </form>
       </div>
 

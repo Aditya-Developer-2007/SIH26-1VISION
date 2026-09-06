@@ -20,7 +20,7 @@ export const AdminDashboard = () => {
   }, []);
 
   const handleExportCsv = () => {
-    window.open('/api/admin/export-csv', '_blank');
+    window.open(`${import.meta.env.VITE_API_URL || '/api'}/admin/export-csv`, '_blank');
   };
 
   if (loading) {

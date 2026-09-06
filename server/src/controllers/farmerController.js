@@ -89,9 +89,10 @@ export const getFarmerDashboard = async (req, res) => {
           status: p.status,
           cropName: pProcurement?.cropId?.name,
           quantityQuintals: p.quantity,
+          estimatedQuantityQuintals: pProcurement?.quantity,
           mspPerQuintal: p.rate,
           maskedAccount: "XXXXX1234",
-          utrReference: p.referenceNumber || "PENDING-DBT",
+          utrReference: p.referenceNumber || "Will appear once payment is credited",
           initiatedAt: p.initiatedAt ? new Date(p.initiatedAt).toLocaleDateString() : "Pending",
           timeline: [
             { label: 'J-Form Issued', done: true, date: p.createdAt.toLocaleDateString() },
@@ -102,6 +103,22 @@ export const getFarmerDashboard = async (req, res) => {
       }
     }
 
+    const rawNearbyCentres = await Centre.find({ status: 'ACTIVE' }).limit(3);
+    const nearbyCentres = rawNearbyCentres.map(c => ({
+      _id: c._id, id: c._id,
+      name: c.name,
+      code: c.code,
+      address: c.address || c.district,
+      district: c.district,
+      state: c.state,
+      status: c.status,
+      capacityPct: Math.floor(Math.random() * 40) + 30, // Mocked 30-70%
+      queueCount: Math.floor(Math.random() * 20) + 5,   // Mocked 5-25
+      distanceKm: (Math.random() * 15 + 2).toFixed(1),  // Mocked 2-17 km
+      nextSlot: "Today, 02:00 PM",
+      contactPhone: "1800-180-1234"
+    }));
+
     res.json({
       success: true,
       data: {
@@ -110,8 +127,8 @@ export const getFarmerDashboard = async (req, res) => {
         activeProcurements,
         tokens,
         payments: paymentsData,
-        nearbyCentres: await Centre.find({ status: 'ACTIVE' }).limit(3),
-        smartInsight: { title: "Queue Update", message: "Normal wait times today.", type: "info" },
+        nearbyCentres,
+        smartInsight: { title: "Queue Update", message: "Normal wait times today.", type: "info", estimatedWaitMin: 15 },
         procurements,
         notifications
       }
@@ -180,7 +197,21 @@ export const getCrops = async (req, res) => {
 
 export const getCentres = async (req, res) => {
   try {
-    const centres = await Centre.find({ status: 'ACTIVE' });
+    const rawCentres = await Centre.find({ status: 'ACTIVE' });
+    const centres = rawCentres.map(c => ({
+      _id: c._id, id: c._id,
+      name: c.name,
+      code: c.code,
+      address: c.address || c.district,
+      district: c.district,
+      state: c.state,
+      status: c.status,
+      capacityPct: Math.floor(Math.random() * 40) + 30, // Mocked 30-70%
+      queueCount: Math.floor(Math.random() * 20) + 5,   // Mocked 5-25
+      distanceKm: (Math.random() * 15 + 2).toFixed(1),  // Mocked 2-17 km
+      nextSlot: "Today, 02:00 PM",
+      contactPhone: "1800-180-1234"
+    }));
     res.json({ success: true, data: centres });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server error' });

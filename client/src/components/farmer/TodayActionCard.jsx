@@ -11,7 +11,7 @@ export const TodayActionCard = ({ todayAction }) => {
   return (
     <div className="bg-gradient-to-br from-brand-900 via-brand-800 to-slate-900 text-white rounded-xl p-5 md:p-6 shadow-card relative overflow-hidden">
       {/* Subtle background graphic */}
-      <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 opacity-10 pointer-events-none">
+      <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 opacity-5 pointer-events-none">
         <QrCode className="w-64 h-64 text-white" />
       </div>
 
