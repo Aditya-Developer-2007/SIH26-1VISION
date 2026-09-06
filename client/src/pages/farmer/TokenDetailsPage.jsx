@@ -5,7 +5,8 @@ import { ArrowLeft, QrCode } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const TokenDetailsPage = () => {
-  const [tokens, setTokens] = useState([]);
+  const [activeTokens, setActiveTokens] = useState([]);
+  const [historyTokens, setHistoryTokens] = useState([]);
   const [selectedTokenIndex, setSelectedTokenIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -13,13 +14,33 @@ export const TokenDetailsPage = () => {
     farmerApi.getDashboard().then(res => {
       if (res?.success) {
         const tokensArray = res.data?.tokens || [];
-        setTokens(tokensArray);
+        const paymentsArray = res.data?.payments || [];
+        
+        // Find which procurements are fully credited
+        const creditedProcurementIds = new Set(
+          paymentsArray.filter(p => p.status === 'CREDITED').map(p => p.procurementId)
+        );
+
+        const active = [];
+        const history = [];
+
+        tokensArray.forEach(t => {
+          if (t.status === 'EXPIRED' || creditedProcurementIds.has(t.procurementId)) {
+            // Ensure token displays as expired if payment is credited
+            history.push({ ...t, status: 'EXPIRED' });
+          } else {
+            active.push(t);
+          }
+        });
+
+        setActiveTokens(active);
+        setHistoryTokens(history);
 
         // Check if there's an id in the URL
         const params = new URLSearchParams(window.location.search);
         const urlId = params.get('id');
         if (urlId) {
-          const idx = tokensArray.findIndex(t => t.tokenNumber === urlId);
+          const idx = active.findIndex(t => t.tokenNumber === urlId);
           if (idx !== -1) {
             setSelectedTokenIndex(idx);
           }
@@ -43,14 +64,30 @@ export const TokenDetailsPage = () => {
         <span className="text-sm text-brand-700 font-black">Asli Token</span>
       </div>
 
-      <div className="space-y-6">
-        {tokens.length > 0 ? (
-          tokens.map((token, idx) => (
-            <TokenCard key={token.id || idx} token={token} />
-          ))
-        ) : (
-          <div className="bg-white rounded-2xl border-2 border-dashed border-slate-300 p-8 text-center text-slate-500 font-bold">
-            Koi token nahi mila. Fasal jodein.
+      <div className="space-y-8">
+        
+        {/* Active Tokens */}
+        <div className="space-y-6">
+          {activeTokens.length > 0 ? (
+            activeTokens.map((token, idx) => (
+              <TokenCard key={token.id || idx} token={token} />
+            ))
+          ) : (
+            <div className="bg-white rounded-2xl border-2 border-dashed border-slate-300 p-8 text-center text-slate-500 font-bold">
+              Koi active token nahi mila. Fasal jodein.
+            </div>
+          )}
+        </div>
+
+        {/* History Section */}
+        {historyTokens.length > 0 && (
+          <div className="pt-6 border-t border-slate-200 space-y-6">
+            <h3 className="text-xl font-black text-slate-900 text-center">History (Purane Token)</h3>
+            <div className="space-y-6 opacity-80">
+              {historyTokens.map((token, idx) => (
+                <TokenCard key={token.id || idx} token={token} />
+              ))}
+            </div>
           </div>
         )}
       </div>

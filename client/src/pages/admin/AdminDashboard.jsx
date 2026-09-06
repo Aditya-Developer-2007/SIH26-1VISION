@@ -101,7 +101,7 @@ export const AdminDashboard = () => {
 
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
               <span className="text-slate-500 block uppercase font-medium">Today's Yield</span>
-              <span className="text-xl font-black text-brand-900 block mt-1">{kpis.todayProcurementQuintals || 0} Q</span>
+              <span className="text-xl font-black text-brand-900 block mt-1">{Number(kpis.todayProcurementQuintals || 0).toFixed(3)} Q</span>
               <span className="text-[10px] text-slate-400">Across {kpis.activeCentresCount || 0} centres</span>
             </div>
 
@@ -138,7 +138,7 @@ export const AdminDashboard = () => {
                   <div key={idx} className="space-y-1">
                     <div className="flex justify-between font-semibold">
                       <span className="text-slate-800">{item.name}</span>
-                      <span className="font-bold text-slate-900">{item.totalQuintals} Quintal ({item.pct}%)</span>
+                      <span className="font-bold text-slate-900">{Number(item.totalQuintals || 0).toFixed(3)} Quintal ({Number(item.pct || 0).toFixed(1)}%)</span>
                     </div>
                     <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                       <div
@@ -182,7 +182,7 @@ export const AdminDashboard = () => {
                               style={{ width: `${centre.capacityPct}%` }}
                             ></div>
                           </div>
-                          <span className="font-bold text-slate-800">{centre.capacityPct}%</span>
+                          <span className="font-bold text-slate-800">{Number(centre.capacityPct || 0).toFixed(1)}%</span>
                         </div>
                       </div>
                     </div>

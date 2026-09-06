@@ -164,7 +164,7 @@ export const AdminDrilldownView = ({ centres }) => {
                         </div>
                         <div>
                           <span className="text-[10px] text-slate-500 block uppercase">Procured Qty</span>
-                          <span className="font-bold text-slate-900">{officer.totalQuantityProcured} Q</span>
+                          <span className="font-bold text-slate-900">{Number(officer.totalQuantityProcured || 0).toFixed(3)} Q</span>
                         </div>
                         <div>
                           <span className="text-[10px] text-slate-500 block uppercase">Total Payout</span>
@@ -232,7 +232,7 @@ export const AdminDrilldownView = ({ centres }) => {
                             <td className="px-4 py-3 font-mono font-bold text-slate-700 text-xs">{proc.token}</td>
                             <td className="px-4 py-3 font-semibold text-slate-900">{proc.farmerName}</td>
                             <td className="px-4 py-3 text-slate-600">{proc.cropName}</td>
-                            <td className="px-4 py-3 font-bold text-slate-800">{proc.quantity} Q</td>
+                            <td className="px-4 py-3 font-bold text-slate-800">{Number(proc.quantity || 0).toFixed(3)} Q</td>
                             <td className="px-4 py-3 font-bold text-emerald-700">₹{proc.amount?.toLocaleString('en-IN')}</td>
                             <td className="px-4 py-3 text-slate-500 text-xs">{new Date(proc.date).toLocaleString()}</td>
                             <td className="px-4 py-3">

@@ -5,7 +5,9 @@ import { LanguageProvider } from './context/LanguageContext';
 import { ToastProvider } from './context/ToastContext';
 
 import { DemoRoleBar } from './components/common/DemoRoleBar';
-import { Header } from './components/common/Header';
+import { FarmerTopNav } from './components/common/FarmerTopNav';
+import { OfficerTopNav } from './components/common/OfficerTopNav';
+import { AdminTopNav } from './components/common/AdminTopNav';
 import { BottomNav } from './components/common/BottomNav';
 
 import { LandingPage } from './pages/LandingPage';
@@ -32,7 +34,9 @@ const MainLayout = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-paper-50">
-      {role !== 'FARMER' && <Header />}
+      {role === 'FARMER' && <FarmerTopNav />}
+      {role === 'OFFICER' && <OfficerTopNav />}
+      {role === 'ADMIN' && <AdminTopNav />}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
         <Outlet />
       </main>

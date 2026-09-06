@@ -60,7 +60,7 @@ export const ArrivalTable = ({ arrivals, onInspectToken }) => {
                   {item.cropName}
                 </td>
                 <td className="py-3 px-4 font-bold text-slate-900">
-                  {item.estimatedQuantityQuintals} Q
+                  {Number(item.estimatedQuantityQuintals || 0).toFixed(3)} Q
                 </td>
                 <td className="py-3 px-4 text-slate-600">
                   {item.slotTime}
