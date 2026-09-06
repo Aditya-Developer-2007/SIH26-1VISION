@@ -35,39 +35,25 @@ export const TokenDetailsPage = () => {
 
   return (
     <div className="max-w-xl mx-auto space-y-6 pb-safe-nav">
-      <div className="flex items-center justify-between">
-        <Link to="/farmer" className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900">
-          <ArrowLeft className="w-4 h-4" />
-          Back to Dashboard
+      <div className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm">
+        <Link to="/farmer" className="inline-flex items-center gap-2 font-bold text-slate-800 hover:text-brand-700">
+          <ArrowLeft className="w-5 h-5" />
+          Peeche Jayein
         </Link>
-        <span className="text-xs text-slate-500 font-medium">Verified Official Token</span>
+        <span className="text-sm text-brand-700 font-black">Asli Token</span>
       </div>
 
-      {tokens.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
-          {tokens.map((t, idx) => (
-            <button
-              key={t.id}
-              onClick={() => setSelectedTokenIndex(idx)}
-              className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold border transition-colors ${
-                idx === selectedTokenIndex
-                  ? 'bg-brand-800 text-white border-brand-800 shadow-sm'
-                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-              }`}
-            >
-              {t.cropName} - {t.tokenNumber}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {tokens.length > 0 ? (
-        <TokenCard token={tokens[selectedTokenIndex]} />
-      ) : (
-        <div className="bg-white rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
-          No tokens found. Register a crop to generate a token.
-        </div>
-      )}
+      <div className="space-y-6">
+        {tokens.length > 0 ? (
+          tokens.map((token, idx) => (
+            <TokenCard key={token.id || idx} token={token} />
+          ))
+        ) : (
+          <div className="bg-white rounded-2xl border-2 border-dashed border-slate-300 p-8 text-center text-slate-500 font-bold">
+            Koi token nahi mila. Fasal jodein.
+          </div>
+        )}
+      </div>
     </div>
   );
 };

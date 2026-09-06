@@ -23,37 +23,31 @@ export const TodayActionCard = ({ todayAction }) => {
           </span>
         </div>
 
-        <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white mb-2">
-          {todayAction.title || t('scheduledTomorrow')}
+        <h2 className="text-3xl font-black tracking-tight text-white mb-4">
+          Kal Subah 10 Baje Mandi Aana Hai
         </h2>
 
-        <div className="flex flex-wrap items-center gap-y-2 gap-x-5 text-sm text-brand-100 mb-4 font-medium">
-          <div className="flex items-center gap-1.5">
-            <Calendar className="w-4 h-4 text-emerald-400" />
-            <span>{todayAction.timeSlot}</span>
+        <div className="flex flex-col gap-3 text-lg font-bold text-brand-100 mb-6">
+          <div className="flex items-center gap-3">
+            <MapPin className="w-6 h-6 text-emerald-400" />
+            <span>{todayAction.centreName} ({todayAction.distanceKm} km door)</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <MapPin className="w-4 h-4 text-emerald-400" />
-            <span>{todayAction.centreName} ({todayAction.distanceKm} km away)</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-amber-300 font-semibold">
-            <QrCode className="w-4 h-4" />
-            <span>Token: {todayAction.tokenNumber}</span>
+          <div className="flex items-center gap-3 text-amber-300">
+            <QrCode className="w-6 h-6" />
+            <span>Token No: {todayAction.tokenNumber}</span>
           </div>
         </div>
 
         {/* Required documents checklist */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/10 mb-5">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-brand-200 mb-1.5">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>What to carry for your slot:</span>
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10 mb-6">
+          <div className="flex items-center gap-2 text-sm font-bold text-brand-200 mb-3">
+            <ShieldCheck className="w-5 h-5 text-emerald-400" />
+            <span>Kagaz jo laane hain:</span>
           </div>
-          <div className="flex flex-wrap gap-2 text-xs text-white">
-            {(todayAction.checklist || []).map((item, idx) => (
-              <span key={idx} className="bg-white/10 px-2.5 py-1 rounded border border-white/10 flex items-center gap-1">
-                ✓ {item}
-              </span>
-            ))}
+          <div className="flex flex-wrap gap-2 text-sm text-white font-semibold">
+            <span className="bg-white/20 px-3 py-1.5 rounded-lg">✓ Aadhaar Card</span>
+            <span className="bg-white/20 px-3 py-1.5 rounded-lg">✓ Fard (Zameen record)</span>
+            <span className="bg-white/20 px-3 py-1.5 rounded-lg">✓ Mera Token (Mobile)</span>
           </div>
         </div>
 

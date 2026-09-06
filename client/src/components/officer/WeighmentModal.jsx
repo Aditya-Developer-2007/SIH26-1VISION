@@ -157,7 +157,7 @@ export const WeighmentModal = ({ procurement, isOpen, onClose, onSubmit }) => {
               className="inline-flex items-center gap-2 bg-brand-800 hover:bg-brand-900 text-white font-bold px-5 py-2 rounded text-xs transition shadow-sm"
             >
               <CheckCircle className="w-4 h-4" />
-              {loading ? 'Processing...' : 'Complete Procurement & Issue J-Form'}
+              {loading ? 'Processing...' : 'Complete Verification'}
             </button>
           </div>
         </form>

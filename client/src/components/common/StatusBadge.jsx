@@ -18,11 +18,16 @@ export const StatusBadge = ({ status }) => {
     SUBMITTED: { label: 'Submitted', bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', icon: Clock },
     RESOLVED: { label: 'Resolved', bg: 'bg-emerald-50', text: 'text-emerald-800', border: 'border-emerald-200', icon: CheckCircle },
     OPEN: { label: 'Open', bg: 'bg-emerald-50', text: 'text-emerald-800', border: 'border-emerald-200', icon: Check },
-    EXPIRED: { label: 'Expired', bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200', icon: AlertCircle }
+    EXPIRED: { label: 'Expired', bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200', icon: AlertCircle },
+    PENDING_DBT: { label: 'DBT Pending', bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-200', icon: Clock },
+    FAILED: { label: 'Failed', bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200', icon: AlertCircle },
+    ACTIVE: { label: 'Active', bg: 'bg-emerald-50', text: 'text-emerald-800', border: 'border-emerald-200', icon: CheckCircle },
+    INACTIVE: { label: 'Inactive', bg: 'bg-slate-100', text: 'text-slate-500', border: 'border-slate-200', icon: AlertCircle }
   };
 
-  const config = configs[normalized] || {
-    label: status || 'Active',
+  const normalizedKey = normalized.replace(/-/g, '_');
+  const config = configs[normalizedKey] || {
+    label: (status || 'Active').replace(/[-_]/g, ' '),
     bg: 'bg-slate-100',
     text: 'text-slate-800',
     border: 'border-slate-200',

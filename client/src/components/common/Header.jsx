@@ -28,14 +28,16 @@ export const Header = () => {
           </div>
         </Link>
 
-        {/* Navigation Quick Links */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-          <Link to="/farmer" className="hover:text-brand-700 transition">{t('navHome')}</Link>
-          <Link to="/farmer/token" className="hover:text-brand-700 transition">{t('navToken')}</Link>
-          <Link to="/farmer/payments" className="hover:text-brand-700 transition">{t('navPayments')}</Link>
-          <Link to="/farmer/centres" className="hover:text-brand-700 transition">{t('navCentres')}</Link>
-          <Link to="/farmer/documents" className="hover:text-brand-700 transition">{t('navDocs')}</Link>
-        </nav>
+        {/* Navigation Quick Links (Hidden for Farmer to simplify UX) */}
+        {user?.role !== 'FARMER' && (
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
+            <Link to="/farmer" className="hover:text-brand-700 transition">{t('navHome')}</Link>
+            <Link to="/farmer/token" className="hover:text-brand-700 transition">{t('navToken')}</Link>
+            <Link to="/farmer/payments" className="hover:text-brand-700 transition">{t('navPayments')}</Link>
+            <Link to="/farmer/centres" className="hover:text-brand-700 transition">{t('navCentres')}</Link>
+            <Link to="/farmer/documents" className="hover:text-brand-700 transition">{t('navDocs')}</Link>
+          </nav>
+        )}
 
         {/* Right Actions */}
         <div className="flex items-center gap-3">

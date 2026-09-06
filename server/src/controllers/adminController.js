@@ -107,7 +107,32 @@ export const updateOfficerAssignment = async (req, res) => {
 
 export const getPaymentsList = async (req, res) => {
   try {
-    const payments = await Payment.find().populate('farmerId', 'name mobile').populate('centreId', 'name');
+    const { status, cropId, centreId, startDate, endDate } = req.query;
+    
+    let query = {};
+    if (status) query.status = status;
+    if (centreId) query.centreId = centreId;
+    
+    let paymentsQuery = Payment.find(query)
+      .populate({ path: 'procurementId', populate: { path: 'cropId' } })
+      .populate('farmerId', 'name mobile')
+      .populate('centreId', 'name district state');
+      
+    let payments = await paymentsQuery.exec();
+
+    if (cropId) {
+      payments = payments.filter(p => p.procurementId?.cropId?._id.toString() === cropId);
+    }
+    if (startDate) {
+      payments = payments.filter(p => new Date(p.createdAt) >= new Date(startDate));
+    }
+    if (endDate) {
+      // Set end date to end of day
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      payments = payments.filter(p => new Date(p.createdAt) <= end);
+    }
+
     res.json({ success: true, data: payments });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server error' });
@@ -132,6 +157,39 @@ export const initiatePayment = async (req, res) => {
     
     res.json({ success: true, data: payment });
   } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+export const markPaymentSuccessful = async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+    const payment = await Payment.findById(paymentId).populate('farmerId');
+    if (!payment) return res.status(404).json({ success: false, message: 'Payment not found' });
+    
+    payment.status = 'CREDITED';
+    payment.creditedAt = new Date();
+    // Generate a mock UTR for realism
+    payment.referenceNumber = 'UTR-' + Math.floor(Math.random() * 1000000000);
+    await payment.save();
+
+    const procurement = await Procurement.findById(payment.procurementId);
+    if (procurement) {
+       procurement.status = 'PAYMENT_RECEIVED';
+       await procurement.save();
+    }
+    
+    await AuditLog.create({
+      action: 'PAYMENT_CREDITED',
+      userId: req.user.id,
+      details: `Admin manually marked payment ${paymentId} as credited for farmer ${payment.farmerId?.name}`,
+      entityType: 'PAYMENT',
+      entityId: paymentId
+    });
+
+    res.json({ success: true, data: payment, message: 'Payment marked as credited' });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };

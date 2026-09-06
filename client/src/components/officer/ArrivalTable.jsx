@@ -74,7 +74,7 @@ export const ArrivalTable = ({ arrivals, onInspectToken }) => {
                     className="inline-flex items-center gap-1 bg-brand-800 hover:bg-brand-900 text-white font-bold px-3 py-1.5 rounded text-xs transition"
                   >
                     <Scale className="w-3.5 h-3.5" />
-                    Weighment
+                    Verify
                   </button>
                 </td>
               </tr>

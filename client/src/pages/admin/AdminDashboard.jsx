@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../../services/adminApi';
-import { Building2, Users, Search, Activity, ShieldAlert, BarChart3, Download, Layers } from 'lucide-react';
+import { Building2, Users, Search, Activity, ShieldAlert, BarChart3, Download, Layers, IndianRupee } from 'lucide-react';
 import { AdminDrilldownView } from '../../components/admin/AdminDrilldownView';
+import { AdminPaymentsView } from '../../components/admin/AdminPaymentsView';
 
 export const AdminDashboard = () => {
   const [data, setData] = useState(null);
@@ -66,7 +67,7 @@ export const AdminDashboard = () => {
         </button>
         <button
           onClick={() => setActiveTab('drilldown')}
-          className={`flex items-center gap-2 px-6 py-3 font-bold text-sm transition-colors border-b-2 ${
+          className={`flex items-center gap-2 px-4 sm:px-6 py-3 font-bold text-sm transition-colors border-b-2 whitespace-nowrap ${
             activeTab === 'drilldown' 
               ? 'border-brand-800 text-brand-800' 
               : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
@@ -74,6 +75,17 @@ export const AdminDashboard = () => {
         >
           <Layers className="w-4 h-4" />
           Operations Drill-Down
+        </button>
+        <button
+          onClick={() => setActiveTab('payments')}
+          className={`flex items-center gap-2 px-4 sm:px-6 py-3 font-bold text-sm transition-colors border-b-2 whitespace-nowrap ${
+            activeTab === 'payments' 
+              ? 'border-brand-800 text-brand-800' 
+              : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+          }`}
+        >
+          <IndianRupee className="w-4 h-4" />
+          Payments
         </button>
       </div>
 
@@ -180,8 +192,10 @@ export const AdminDashboard = () => {
             </div>
           </div>
         </>
-      ) : (
+      ) : activeTab === 'drilldown' ? (
         <AdminDrilldownView centres={centres} />
+      ) : (
+        <AdminPaymentsView centres={centres} />
       )}
     </div>
   );

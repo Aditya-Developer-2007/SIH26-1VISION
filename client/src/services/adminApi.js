@@ -21,12 +21,17 @@ export const adminApi = {
     const response = await api.put(`/admin/officers/${officerId}/assignments`, { assignedCentreIds });
     return response.data;
   },
-  getPayments: async () => {
-    const response = await api.get('/admin/payments');
+  getPayments: async (params) => {
+    const query = new URLSearchParams(params).toString();
+    const response = await api.get(`/admin/payments?${query}`);
     return response.data;
   },
   initiatePayment: async (paymentId) => {
     const response = await api.post(`/admin/payments/${paymentId}/initiate`);
+    return response.data;
+  },
+  markPaymentSuccessful: async (paymentId) => {
+    const response = await api.post(`/admin/payments/${paymentId}/success`);
     return response.data;
   },
   getDrilldownOfficers: async (centreId) => {

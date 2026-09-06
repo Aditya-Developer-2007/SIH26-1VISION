@@ -7,6 +7,7 @@ import {
   updateOfficerAssignment, 
   getPaymentsList, 
   initiatePayment,
+  markPaymentSuccessful,
   getAdminCentreOfficers,
   getAdminOfficerDetails
 } from '../controllers/adminController.js';
@@ -24,6 +25,7 @@ router.get('/officers', getOfficersList);
 router.put('/officers/:officerId/assignments', updateOfficerAssignment);
 router.get('/payments', getPaymentsList);
 router.post('/payments/:paymentId/initiate', initiatePayment);
+router.post('/payments/:paymentId/success', markPaymentSuccessful);
 
 // Drill-down endpoints
 router.get('/drilldown/centres/:centreId/officers', getAdminCentreOfficers);

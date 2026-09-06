@@ -1,10 +1,13 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
-import { Home, Compass, QrCode, CreditCard, Building2 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { Home, QrCode, CreditCard, Building2, LogOut } from 'lucide-react';
 
 export const BottomNav = () => {
   const { t } = useLanguage();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const navItems = [
     { to: '/farmer', label: t('navHome'), icon: Home },
@@ -13,8 +16,13 @@ export const BottomNav = () => {
     { to: '/farmer/centres', label: t('navCentres'), icon: Building2 },
   ];
 
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 px-2 py-1 shadow-elevated">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 px-2 py-2 shadow-elevated">
       <div className="flex items-center justify-around max-w-md mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -50,6 +58,18 @@ export const BottomNav = () => {
             </NavLink>
           );
         })}
+        
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="flex flex-col items-center py-1 px-3 rounded-lg text-[11px] font-medium transition text-rose-500 hover:text-rose-700"
+        >
+          <div className="p-1 rounded-full transition">
+            <LogOut className="w-5 h-5" />
+          </div>
+          <span className="mt-0.5">Logout</span>
+        </button>
+
       </div>
     </nav>
   );

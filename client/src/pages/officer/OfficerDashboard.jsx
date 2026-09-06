@@ -7,7 +7,8 @@ import { useToast } from '../../context/ToastContext';
 import { ArrivalTable } from '../../components/officer/ArrivalTable';
 import { WeighmentModal } from '../../components/officer/WeighmentModal';
 import { OfficerBillModal } from '../../components/officer/OfficerBillModal';
-import { CheckCircle2, Search, Filter, ArrowRight, ShieldCheck, QrCode, AlertCircle, TrendingUp, Users, Shield, Scale, Clock, FileText } from 'lucide-react';
+import { OfficerPaymentsView } from '../../components/officer/OfficerPaymentsView';
+import { CheckCircle2, Search, Filter, ArrowRight, ShieldCheck, QrCode, AlertCircle, TrendingUp, Users, Shield, Scale, Clock, FileText, IndianRupee, Layers } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 
@@ -21,6 +22,7 @@ export const OfficerDashboard = () => {
   const [searchTokenInput, setSearchTokenInput] = useState('');
   const [isBillModalOpen, setIsBillModalOpen] = useState(false);
   const [billData, setBillData] = useState(null);
+  const [activeTab, setActiveTab] = useState('gate');
 
   const { addToast } = useToast();
 
@@ -152,35 +154,66 @@ export const OfficerDashboard = () => {
         </form>
       </div>
 
-      {/* KPI Cards Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
-          <span className="text-slate-500 block uppercase font-medium">Today's Scheduled</span>
-          <span className="text-2xl font-black text-slate-900 block mt-1">{stats.todayScheduled || 0}</span>
-          <span className="text-[10px] text-slate-400">Total gate tokens</span>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
-          <span className="text-slate-500 block uppercase font-medium">Quality Pending</span>
-          <span className="text-2xl font-black text-amber-600 block mt-1">{stats.qualityPending || 0}</span>
-          <span className="text-[10px] text-amber-700">Awaiting scale check</span>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
-          <span className="text-slate-500 block uppercase font-medium">Completed Weighments</span>
-          <span className="text-2xl font-black text-emerald-700 block mt-1">{stats.completedToday || 0}</span>
-          <span className="text-[10px] text-emerald-800">J-Forms auto-issued</span>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
-          <span className="text-slate-500 block uppercase font-medium">Total Procured Today</span>
-          <span className="text-2xl font-black text-brand-900 block mt-1">{stats.totalProcuredQuintals || 0} Q</span>
-          <span className="text-[10px] text-slate-400">Wheat yield received</span>
-        </div>
+      <div className="flex border-b border-slate-200 mb-6 border-white/10 sm:border-slate-200">
+        <button
+          onClick={() => setActiveTab('gate')}
+          className={`flex items-center gap-2 px-4 sm:px-6 py-3 font-bold text-sm transition-colors border-b-2 whitespace-nowrap ${
+            activeTab === 'gate' 
+              ? 'border-brand-800 text-brand-800' 
+              : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+          }`}
+        >
+          <Layers className="w-4 h-4" />
+          Gate Operations
+        </button>
+        <button
+          onClick={() => setActiveTab('payments')}
+          className={`flex items-center gap-2 px-4 sm:px-6 py-3 font-bold text-sm transition-colors border-b-2 whitespace-nowrap ${
+            activeTab === 'payments' 
+              ? 'border-brand-800 text-brand-800' 
+              : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+          }`}
+        >
+          <IndianRupee className="w-4 h-4" />
+          Payments
+        </button>
       </div>
 
-      {/* Arrival Table */}
-      <ArrivalTable arrivals={data?.arrivals} onInspectToken={handleInspectToken} />
+      {activeTab === 'gate' ? (
+        <>
+          {/* KPI Cards Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
+              <span className="text-slate-500 block uppercase font-medium">Today's Scheduled</span>
+              <span className="text-2xl font-black text-slate-900 block mt-1">{stats.todayScheduled || 0}</span>
+              <span className="text-[10px] text-slate-400">Total gate tokens</span>
+            </div>
+
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
+              <span className="text-slate-500 block uppercase font-medium">Quality Pending</span>
+              <span className="text-2xl font-black text-amber-600 block mt-1">{stats.qualityPending || 0}</span>
+              <span className="text-[10px] text-amber-700">Awaiting scale check</span>
+            </div>
+
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
+              <span className="text-slate-500 block uppercase font-medium">Completed Weighments</span>
+              <span className="text-2xl font-black text-emerald-700 block mt-1">{stats.completedToday || 0}</span>
+              <span className="text-[10px] text-emerald-800">J-Forms auto-issued</span>
+            </div>
+
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-card">
+              <span className="text-slate-500 block uppercase font-medium">Total Procured Today</span>
+              <span className="text-2xl font-black text-brand-900 block mt-1">{stats.totalProcuredQuintals || 0} Q</span>
+              <span className="text-[10px] text-slate-400">Wheat yield received</span>
+            </div>
+          </div>
+
+          {/* Arrival Table */}
+          <ArrivalTable arrivals={data?.arrivals} onInspectToken={handleInspectToken} />
+        </>
+      ) : (
+        <OfficerPaymentsView />
+      )}
 
       {/* Weighment Modal */}
       <WeighmentModal

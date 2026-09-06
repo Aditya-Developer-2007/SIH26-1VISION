@@ -12,5 +12,10 @@ export const officerApi = {
   submitWeighment: async (procurementId, data) => {
     const response = await api.post(`/officer/procurements/${procurementId}/quality`, data);
     return response.data;
+  },
+  getPayments: async (params) => {
+    const query = new URLSearchParams(params).toString();
+    const response = await api.get(`/officer/payments?${query}`);
+    return response.data;
   }
 };

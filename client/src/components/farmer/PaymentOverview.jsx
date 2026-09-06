@@ -1,101 +1,97 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StatusBadge } from '../common/StatusBadge';
-import { CheckCircle2, Clock, Landmark, ArrowUpRight, Shield, FileText } from 'lucide-react';
+import { CheckCircle2, Volume2, Landmark, ChevronDown, ChevronUp, FileText } from 'lucide-react';
 
 export const PaymentOverview = ({ payment }) => {
+  const [showMore, setShowMore] = useState(false);
+
   if (!payment) return null;
 
+  const playTTS = (amount) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(`Aapke bank khate mein ${amount} rupaye aane waale hain`);
+      utterance.lang = 'hi-IN';
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-card space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-slate-200">
-        <div>
-          <span className="text-xs text-slate-500 font-medium block uppercase tracking-wider">
-            YOUR PAYMENT STATUS
-          </span>
-          <h3 className="text-xl font-black text-slate-900">
-            ₹{payment.totalAmount?.toLocaleString('en-IN')}
-          </h3>
-        </div>
-        <StatusBadge status={payment.status} />
-      </div>
-
-      {/* Quintals x MSP breakdown */}
-      <div className="bg-paper-50 rounded-lg p-4 border border-slate-200 grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
-        <div>
-          <span className="text-xs text-slate-500 block">Accepted Quantity</span>
-          <span className="font-bold text-slate-900">{payment.cropName} ({payment.quantityQuintals} Q)</span>
-          {payment.estimatedQuantityQuintals && payment.estimatedQuantityQuintals !== payment.quantityQuintals && (
-            <span className="block text-[10px] text-slate-500 mt-0.5">Estimated: {payment.estimatedQuantityQuintals} Q</span>
-          )}
-        </div>
-        <div>
-          <span className="text-xs text-slate-500 block">Govt. MSP Rate</span>
-          <span className="font-bold text-brand-800">₹{payment.mspPerQuintal?.toLocaleString('en-IN')} / Quintal</span>
-        </div>
-        <div>
-          <span className="text-xs text-slate-500 block">Bank Account</span>
-          <span className="font-bold text-slate-900 flex items-center gap-1">
-            <Landmark className="w-3.5 h-3.5 text-slate-500" />
-            {payment.maskedAccount}
-          </span>
-        </div>
-      </div>
-
-      {/* Reference info */}
-      <div className="flex flex-wrap items-center justify-between gap-2 text-xs bg-slate-50 p-3 rounded-lg border border-slate-200">
-        <div>
-          <span className="text-slate-500">Reference / UTR ID: </span>
-          <span className="font-mono font-bold text-slate-800">{payment.utrReference}</span>
-        </div>
-        <div>
-          <span className="text-slate-500">Initiated: </span>
-          <span className="font-semibold text-slate-800">{payment.initiatedAt}</span>
-        </div>
-      </div>
-
-      {/* Bank Settlement Timeline */}
+    <div className="bg-white rounded-3xl border-2 border-slate-200 shadow-xl overflow-hidden text-center max-w-sm mx-auto p-6 space-y-6">
+      
+      {/* Massive Status Header */}
       <div>
-        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
-          Direct Benefit Transfer (DBT) Lifecycle
-        </h4>
-        <div className="space-y-3">
-          {payment.timeline?.map((item, idx) => (
-            <div key={idx} className="flex items-center gap-3">
-              <div
-                className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
-                  item.done
-                    ? 'bg-emerald-600 text-white'
-                    : item.active
-                    ? 'bg-indigo-600 text-white animate-pulse'
-                    : 'bg-slate-100 text-slate-400 border border-slate-300'
-                }`}
-              >
-                {item.done ? <CheckCircle2 className="w-4 h-4" /> : <Clock className="w-3.5 h-3.5" />}
-              </div>
-              <div className="flex-1 flex items-center justify-between text-xs">
-                <span className={`font-semibold ${item.done || item.active ? 'text-slate-900' : 'text-slate-400'}`}>
-                  {item.label}
-                </span>
-                <span className="text-slate-500">{item.date}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+        <h3 className="text-4xl font-black text-emerald-700 tracking-tight">
+          ₹{payment.totalAmount?.toLocaleString('en-IN')}
+        </h3>
+        <span className="text-xl font-bold text-slate-800 mt-2 block">Aapke Khate Mein Aa Raha Hai</span>
       </div>
 
-      <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-        <span className="flex items-center gap-1 text-emerald-800 font-medium">
-          <Shield className="w-3.5 h-3.5 text-emerald-600" />
-          PFMS Direct Transfer Verified
-        </span>
-        <button
-          onClick={() => window.open(`${import.meta.env.VITE_API_URL || '/api'}/documents/download/doc_1`, '_blank')}
-          className="text-brand-800 font-bold hover:underline flex items-center gap-1"
-        >
-          View J-Form Receipt
-          <ArrowUpRight className="w-3.5 h-3.5" />
-        </button>
+      <button
+        onClick={() => playTTS(payment.totalAmount)}
+        className="mx-auto flex items-center justify-center gap-2 bg-indigo-50 text-indigo-700 font-bold px-4 py-3 rounded-xl border-2 border-indigo-200"
+      >
+        <Volume2 className="w-6 h-6" />
+        Sun kar samjho
+      </button>
+
+      {/* 3-Step Simple Progress */}
+      <div className="bg-slate-50 p-4 rounded-2xl flex justify-between items-center relative">
+        <div className="absolute left-6 right-6 top-1/2 h-1 bg-slate-200 -z-0"></div>
+        {payment.timeline?.map((item, idx) => (
+          <div key={idx} className="relative z-10 flex flex-col items-center bg-slate-50 px-2 gap-1">
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                item.done
+                  ? 'bg-emerald-500 text-white shadow-lg'
+                  : item.active
+                  ? 'bg-amber-400 text-amber-900 shadow-lg animate-pulse'
+                  : 'bg-slate-200 text-slate-400'
+              }`}
+            >
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
+            <span className={`text-[10px] font-black uppercase ${item.done || item.active ? 'text-slate-900' : 'text-slate-400'}`}>
+              {idx === 0 ? 'Form Bhara' : idx === 1 ? 'Bheja Gaya' : 'Mil Gaya'}
+            </span>
+          </div>
+        ))}
       </div>
+
+      {/* Basic Fasal Info */}
+      <div className="bg-brand-50 p-4 rounded-2xl border-2 border-brand-100 flex items-center justify-between">
+        <span className="text-brand-900 font-bold">{payment.cropName}</span>
+        <span className="text-brand-900 font-black">{payment.quantityQuintals} Quintal</span>
+      </div>
+
+      {/* Secondary Details (Collapsible) */}
+      <div>
+        <button 
+          onClick={() => setShowMore(!showMore)}
+          className="flex items-center justify-center gap-1 w-full text-slate-500 font-bold py-2"
+        >
+          {showMore ? 'Jankari Chupayein' : 'Puri Jankari Dekhein'}
+          {showMore ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+        </button>
+
+        {showMore && (
+          <div className="mt-4 space-y-3 text-sm text-left bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div className="flex justify-between">
+              <span className="text-slate-500 font-bold">Sarkari Rate:</span>
+              <span className="font-black">₹{payment.mspPerQuintal} / Q</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500 font-bold">Khata No:</span>
+              <span className="font-black">{payment.maskedAccount}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500 font-bold">Reference:</span>
+              <span className="font-black text-xs mt-0.5">{payment.utrReference}</span>
+            </div>
+          </div>
+        )}
+      </div>
+
     </div>
   );
 };

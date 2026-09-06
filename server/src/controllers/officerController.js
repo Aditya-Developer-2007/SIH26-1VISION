@@ -173,3 +173,36 @@ export const submitQualityWeighment = async (req, res) => {
   }
 };
 
+export const getOfficerPaymentsList = async (req, res) => {
+  try {
+    const assignedCentres = req.user.assignedCentreIds;
+    const { status, cropId, startDate, endDate } = req.query;
+
+    let query = { centreId: { $in: assignedCentres } };
+    if (status) query.status = status;
+    
+    let paymentsQuery = Payment.find(query)
+      .populate({ path: 'procurementId', populate: { path: 'cropId' } })
+      .populate('farmerId', 'name mobile')
+      .populate('centreId', 'name code');
+      
+    let payments = await paymentsQuery.exec();
+
+    if (cropId) {
+      payments = payments.filter(p => p.procurementId?.cropId?._id.toString() === cropId);
+    }
+    if (startDate) {
+      payments = payments.filter(p => new Date(p.createdAt) >= new Date(startDate));
+    }
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      payments = payments.filter(p => new Date(p.createdAt) <= end);
+    }
+
+    res.json({ success: true, data: payments });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+

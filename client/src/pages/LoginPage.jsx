@@ -42,7 +42,18 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-paper-50 flex flex-col justify-center items-center p-4">
+    <div className="min-h-screen bg-paper-50 flex flex-col justify-center items-center p-4 relative">
+      {/* Language Switcher at Top Right */}
+      <div className="absolute top-4 right-4">
+        <button
+          onClick={toggleLanguage}
+          className="flex items-center gap-2 bg-white hover:bg-slate-50 text-brand-800 px-4 py-2 rounded-full shadow-sm border border-brand-200 font-bold transition"
+        >
+          <Languages className="w-5 h-5" />
+          {lang === 'en' ? 'हिन्दी (Hindi)' : 'English'}
+        </button>
+      </div>
+
       {/* Brand Header */}
       <div className="text-center mb-8">
         <div className="w-14 h-14 bg-brand-800 rounded-2xl text-white flex items-center justify-center mx-auto mb-3 shadow-card">
@@ -88,86 +99,130 @@ export const LoginPage = () => {
         </div>
 
         {step === 1 ? (
-          <form onSubmit={handleSendOtp} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                Mobile Number
-              </label>
-              <div className="relative">
-                <div className="absolute left-3 top-3 text-xs font-bold text-slate-400 border-r pr-2 border-slate-300">
-                  +91
-                </div>
+          <form onSubmit={handleSendOtp} className="space-y-6">
+            {selectedRole === 'FARMER' ? (
+              // Simplified Farmer View
+              <div className="space-y-6 text-center">
                 <input
                   type="tel"
                   maxLength={10}
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full pl-14 pr-4 py-2.5 text-sm font-semibold rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-700 focus:outline-none bg-white"
-                  placeholder="Enter 10-digit number"
+                  className="w-full text-center text-2xl font-black py-4 rounded-xl border-2 border-brand-300 focus:border-brand-700 focus:outline-none bg-brand-50"
+                  placeholder="Mobile Number"
                 />
-              </div>
-            </div>
-
-            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-xs text-emerald-900 flex items-center justify-between">
-              <span className="font-semibold">Demo Mobile: 9876543210</span>
-              <span className="text-[10px] bg-emerald-200/60 px-2 py-0.5 rounded font-bold">SIH DEMO</span>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-brand-800 hover:bg-brand-900 text-white font-bold py-3 rounded-lg text-sm transition flex items-center justify-center gap-2 shadow-sm"
-            >
-              Get Verification OTP
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={handleVerify} className="space-y-4">
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">
-                  Enter 6-Digit OTP
-                </label>
                 <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className="text-xs text-brand-800 hover:underline font-semibold"
+                  type="submit"
+                  className="w-full bg-brand-800 hover:bg-brand-900 text-white font-black text-xl py-4 rounded-xl shadow-lg transition"
                 >
-                  Change Number
+                  OTP Bhejo
                 </button>
               </div>
-              <input
-                type="text"
-                maxLength={6}
-                required
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className="w-full text-center tracking-widest text-lg font-black py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-700 focus:outline-none bg-white"
-                placeholder="123456"
-              />
-            </div>
+            ) : (
+              // Original Officer/Admin View
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                    Mobile Number
+                  </label>
+                  <div className="relative">
+                    <div className="absolute left-3 top-3 text-xs font-bold text-slate-400 border-r pr-2 border-slate-300">
+                      +91
+                    </div>
+                    <input
+                      type="tel"
+                      maxLength={10}
+                      required
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full pl-14 pr-4 py-2.5 text-sm font-semibold rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-700 focus:outline-none bg-white"
+                      placeholder="Enter 10-digit number"
+                    />
+                  </div>
+                </div>
 
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-900 flex items-center justify-between">
-              <span className="font-semibold">Use Demo OTP Code: 123456</span>
-              <ShieldCheck className="w-4 h-4 text-amber-700" />
-            </div>
+                <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-xs text-emerald-900 flex items-center justify-between">
+                  <span className="font-semibold">Demo Mobile: 9876543210</span>
+                  <span className="text-[10px] bg-emerald-200/60 px-2 py-0.5 rounded font-bold">SIH DEMO</span>
+                </div>
 
-            <button
-              type="submit"
-              className="w-full bg-brand-800 hover:bg-brand-900 text-white font-bold py-3 rounded-lg text-sm transition shadow-sm"
-            >
-              Verify & Enter Dashboard
-            </button>
+                <button
+                  type="submit"
+                  className="w-full bg-brand-800 hover:bg-brand-900 text-white font-bold py-3 rounded-lg text-sm transition flex items-center justify-center gap-2 shadow-sm"
+                >
+                  Get Verification OTP
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </form>
+        ) : (
+          <form onSubmit={handleVerify} className="space-y-6">
+            {selectedRole === 'FARMER' ? (
+              // Simplified Farmer View
+              <div className="space-y-6 text-center">
+                <input
+                  type="text"
+                  maxLength={6}
+                  required
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  className="w-full text-center tracking-widest text-3xl font-black py-4 rounded-xl border-2 border-brand-300 focus:border-brand-700 focus:outline-none bg-brand-50"
+                  placeholder="OTP"
+                />
+                <button
+                  type="submit"
+                  className="w-full bg-brand-800 hover:bg-brand-900 text-white font-black text-xl py-4 rounded-xl shadow-lg transition"
+                >
+                  Aage Badhein
+                </button>
+              </div>
+            ) : (
+              // Original Officer/Admin View
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                      Enter 6-Digit OTP
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setStep(1)}
+                      className="text-xs text-brand-800 hover:underline font-semibold"
+                    >
+                      Change Number
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    required
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="w-full text-center tracking-widest text-lg font-black py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-700 focus:outline-none bg-white"
+                    placeholder="123456"
+                  />
+                </div>
+
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-900 flex items-center justify-between">
+                  <span className="font-semibold">Use Demo OTP Code: 123456</span>
+                  <ShieldCheck className="w-4 h-4 text-amber-700" />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-brand-800 hover:bg-brand-900 text-white font-bold py-3 rounded-lg text-sm transition shadow-sm"
+                >
+                  Verify & Enter Dashboard
+                </button>
+              </div>
+            )}
           </form>
         )}
 
         {/* Footer info */}
-        <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
-          <button onClick={toggleLanguage} className="flex items-center gap-1 hover:text-slate-900 font-semibold">
-            <Languages className="w-3.5 h-3.5" />
-            {lang === 'en' ? 'हिन्दी' : 'English'}
-          </button>
+        <div className="mt-6 pt-4 border-t border-slate-200 text-center text-xs text-slate-500 font-bold">
           <span>AgroCure SIH 2026</span>
         </div>
       </div>
