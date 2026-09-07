@@ -93,6 +93,7 @@ export const getFarmerDashboard = async (req, res) => {
           mspPerQuintal: p.rate,
           maskedAccount: "XXXXX1234",
           utrReference: p.referenceNumber || "Will appear once payment is credited",
+          createdAt: p.createdAt,
           initiatedAt: p.initiatedAt ? new Date(p.initiatedAt).toLocaleDateString() : "Pending",
           timeline: [
             { label: 'J-Form Issued', done: true, date: p.createdAt.toLocaleDateString() },

@@ -6,7 +6,7 @@ import { Home, QrCode, CreditCard, Building2, LogOut } from 'lucide-react';
 
 export const BottomNav = () => {
   const { t } = useLanguage();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
 
   const navItems = [
@@ -22,8 +22,8 @@ export const BottomNav = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 px-2 py-2 shadow-elevated">
-      <div className="flex items-center justify-around max-w-md mx-auto">
+    <nav className="fixed bottom-4 left-4 right-4 md:hidden z-50">
+      <div className="flex items-center justify-around max-w-md mx-auto bg-slate-900/95 backdrop-blur-xl rounded-full px-2 py-2.5 shadow-[0_20px_40px_rgba(0,0,0,0.5)] border border-white/10">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -32,43 +32,59 @@ export const BottomNav = () => {
               to={item.to}
               end={item.to === '/farmer'}
               className={({ isActive }) =>
-                `flex flex-col items-center py-1 px-3 rounded-lg text-[11px] font-medium transition ${
+                `flex flex-col items-center py-1 px-3 rounded-xl text-[10px] font-medium transition-all duration-300 ${
                   isActive
-                    ? 'text-brand-800 font-bold'
-                    : 'text-slate-500 hover:text-slate-800'
+                    ? 'text-white'
+                    : 'text-slate-400 hover:text-white'
                 }`
               }
             >
               {({ isActive }) => (
                 <>
                   <div
-                    className={`p-1 rounded-full transition ${
-                      item.highlight
-                        ? isActive
-                          ? 'bg-brand-800 text-white shadow-sm'
-                          : 'bg-brand-100 text-brand-800'
-                        : ''
+                    className={`p-1.5 rounded-xl transition-all duration-300 ${
+                      isActive
+                        ? 'bg-brand-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.4)] scale-110'
+                        : 'text-slate-400'
                     }`}
                   >
-                    <Icon className={`w-5 h-5 ${isActive && !item.highlight ? 'text-brand-800' : ''}`} />
+                    <Icon className="w-5 h-5" />
                   </div>
-                  <span className="mt-0.5">{item.label}</span>
+                  <span className={`mt-1 transition-all ${isActive ? 'opacity-100 font-bold' : 'opacity-70'}`}>{item.label}</span>
                 </>
               )}
             </NavLink>
           );
         })}
         
-        {/* Logout Button */}
-        <button
-          onClick={handleLogout}
-          className="flex flex-col items-center py-1 px-3 rounded-lg text-[11px] font-medium transition text-rose-500 hover:text-rose-700"
+        {/* Profile/Logout Mobile */}
+        <NavLink
+          to="/farmer/profile"
+          className={({ isActive }) =>
+            `flex flex-col items-center py-1 px-3 rounded-xl text-[10px] font-medium transition-all duration-300 ${
+              isActive
+                ? 'text-white'
+                : 'text-slate-400 hover:text-white'
+            }`
+          }
         >
-          <div className="p-1 rounded-full transition">
-            <LogOut className="w-5 h-5" />
-          </div>
-          <span className="mt-0.5">Logout</span>
-        </button>
+          {({ isActive }) => (
+            <>
+              <div
+                className={`p-1.5 rounded-xl transition-all duration-300 ${
+                  isActive
+                    ? 'bg-brand-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.4)] scale-110'
+                    : 'text-slate-400'
+                }`}
+              >
+                <div className="w-5 h-5 rounded-full bg-slate-600 flex items-center justify-center text-xs font-bold text-white border border-slate-500">
+                  {user?.name ? user.name[0] : 'F'}
+                </div>
+              </div>
+              <span className={`mt-1 transition-all ${isActive ? 'opacity-100 font-bold' : 'opacity-70'}`}>Profile</span>
+            </>
+          )}
+        </NavLink>
 
       </div>
     </nav>

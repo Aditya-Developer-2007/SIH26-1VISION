@@ -35,7 +35,7 @@ export const Header = () => {
             <Link to="/farmer/token" className="hover:text-brand-700 transition">{t('navToken')}</Link>
             <Link to="/farmer/payments" className="hover:text-brand-700 transition">{t('navPayments')}</Link>
             <Link to="/farmer/centres" className="hover:text-brand-700 transition">{t('navCentres')}</Link>
-            <Link to="/farmer/documents" className="hover:text-brand-700 transition">{t('navDocs')}</Link>
+            {/* <Link to="/farmer/documents" className="hover:text-brand-700 transition">{t('navDocs')}</Link> */}
           </nav>
         )}
 

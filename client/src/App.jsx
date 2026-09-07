@@ -33,14 +33,29 @@ const MainLayout = () => {
   const role = user?.role;
 
   return (
-    <div className="min-h-screen flex flex-col bg-paper-50">
-      {role === 'FARMER' && <FarmerTopNav />}
-      {role === 'OFFICER' && <OfficerTopNav />}
-      {role === 'ADMIN' && <AdminTopNav />}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
+    <div className="min-h-screen flex flex-col bg-paper-50 relative">
+      {/* Top Nav: Desktop Farmer, and all other roles */}
+      <div className={role === 'FARMER' ? 'hidden md:block' : 'block'}>
+        {role === 'FARMER' && <FarmerTopNav />}
+        {role === 'OFFICER' && <OfficerTopNav />}
+        {role === 'ADMIN' && <AdminTopNav />}
+      </div>
+
+      {/* Top Nav: Mobile Farmer (Just a slim header) */}
+      <div className="block md:hidden">
+        {role === 'FARMER' && <FarmerTopNav mobile />}
+      </div>
+
+      <main className={`flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 ${role === 'FARMER' ? 'pb-24 md:pb-6' : 'pb-6'}`}>
         <Outlet />
       </main>
-      {role === 'FARMER' && <BottomNav />}
+
+      {/* Bottom Nav: Mobile Farmer ONLY */}
+      {role === 'FARMER' && (
+        <div className="block md:hidden fixed bottom-0 w-full z-50">
+          <BottomNav />
+        </div>
+      )}
     </div>
   );
 };
@@ -71,7 +86,7 @@ export default function App() {
                   <Route path="/farmer/token" element={<TokenDetailsPage />} />
                   <Route path="/farmer/payments" element={<PaymentStatusPage />} />
                   <Route path="/farmer/centres" element={<CentresPage />} />
-                  <Route path="/farmer/documents" element={<DocumentsPage />} />
+                  {/* <Route path="/farmer/documents" element={<DocumentsPage />} /> */}
                   <Route path="/farmer/notifications" element={<NotificationsPage />} />
                   <Route path="/farmer/grievances" element={<GrievancePage />} />
                   <Route path="/farmer/profile" element={<ProfilePage />} />
