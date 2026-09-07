@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { farmerApi } from '../../services/farmerApi';
+import { io } from 'socket.io-client';
 
 import { TodayActionCard } from '../../components/farmer/TodayActionCard';
 import { TokenCard } from '../../components/farmer/TokenCard';
@@ -18,6 +19,7 @@ export const FarmerDashboard = () => {
   const { t } = useLanguage();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentToken, setCurrentToken] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -29,6 +31,22 @@ export const FarmerDashboard = () => {
     });
     return () => { isMounted = false; };
   }, []);
+
+  useEffect(() => {
+    if (data?.todayAction?.centreId && data?.todayAction?.scheduledDate) {
+      const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
+      socket.emit('joinQueueRoom', { 
+        centreId: data.todayAction.centreId, 
+        date: data.todayAction.scheduledDate 
+      });
+      
+      socket.on('queueUpdate', ({ currentToken: ct }) => {
+        setCurrentToken(ct);
+      });
+      
+      return () => socket.disconnect();
+    }
+  }, [data]);
 
   if (loading) {
     return (
@@ -87,7 +105,7 @@ export const FarmerDashboard = () => {
             <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
             Today's Action
           </h3>
-          <TodayActionCard todayAction={todayAction} />
+          <TodayActionCard todayAction={todayAction} currentToken={currentToken} />
         </div>
       )}
 

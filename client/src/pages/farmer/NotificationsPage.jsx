@@ -9,19 +9,21 @@ export const NotificationsPage = () => {
   useEffect(() => {
     farmerApi.getDashboard().then(res => {
       if (res?.success) {
-        setNotifications(res.notifications || []);
+        setNotifications(res.data?.notifications || []);
       }
       setLoading(false);
     });
   }, []);
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 pb-safe-nav">
-      <div>
-        <h1 className="text-2xl font-black text-slate-900">Notifications & Alerts</h1>
-        <p className="text-xs text-slate-500 font-medium mt-0.5">
-          Proactive updates regarding your Mandi schedule, quality checks, and bank payouts.
-        </p>
+    <div className="max-w-md mx-auto space-y-6 pb-24 px-2">
+      <div className="bg-white p-6 rounded-[24px] shadow-sm border border-slate-100 flex items-center gap-4">
+        <div className="w-12 h-12 bg-brand-50 rounded-2xl flex items-center justify-center text-brand-600 shrink-0">
+          <Bell className="w-6 h-6" />
+        </div>
+        <div>
+          <h1 className="text-xl font-black text-slate-900 leading-tight">Alerts &<br/>Updates</h1>
+        </div>
       </div>
 
       {loading ? (

@@ -10,8 +10,8 @@ export const PaymentOverview = ({ payment }) => {
   const playTTS = (amount) => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(`Aapke bank khate mein ${amount} rupaye aane waale hain`);
-      utterance.lang = 'hi-IN';
+      const utterance = new SpeechSynthesisUtterance(`An amount of ${amount} rupees is expected to be credited to your bank account.`);
+      utterance.lang = 'en-IN';
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -32,7 +32,7 @@ export const PaymentOverview = ({ payment }) => {
         className="mx-auto flex items-center justify-center gap-2 bg-indigo-50 text-indigo-700 font-bold px-4 py-3 rounded-xl border-2 border-indigo-200"
       >
         <Volume2 className="w-6 h-6" />
-        Sun kar samjho
+        Listen to details
       </button>
 
       {/* 3-Step Simple Progress */}

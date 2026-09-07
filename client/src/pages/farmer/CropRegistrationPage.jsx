@@ -19,6 +19,29 @@ export const CropRegistrationPage = () => {
   const [loading, setLoading] = useState(false);
   const [successData, setSuccessData] = useState(null);
 
+  const [slots, setSlots] = useState([]);
+  const [fetchingSlots, setFetchingSlots] = useState(false);
+
+  useEffect(() => {
+    if (step === 4 && centreId && preferredDate) {
+      setFetchingSlots(true);
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/centres/${centreId}/slots?date=${preferredDate}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.data) {
+            setSlots(data.data);
+            // Auto-select the emptiest slot to reduce congestion
+            const emptiest = [...data.data].sort((a, b) => a.fillPercentage - b.fillPercentage)[0];
+            if (emptiest && !preferredTime) {
+              setPreferredTime(`${emptiest.startTime} - ${emptiest.endTime}`);
+            }
+          }
+          setFetchingSlots(false);
+        })
+        .catch(() => setFetchingSlots(false));
+    }
+  }, [step, centreId, preferredDate]);
+
   const { addToast } = useToast();
   const navigate = useNavigate();
 
@@ -63,7 +86,7 @@ export const CropRegistrationPage = () => {
     1: 'Kaunsi fasal jama karni hai?',
     2: 'Kitni zameen mein fasal hui thi aur kitni paidaawar hai?',
     3: 'Kaunsi Mandi mein jaana chahte hain?',
-    4: 'Kis din aur kis samay mandi aana hai?',
+    4: 'Kis din aur kis samay mandi aana hai? Kripya woh samay chunein jahan bheed kam ho.',
     5: 'Sab jankari check kar lein aur apna naya token banayein.'
   };
 
@@ -98,7 +121,7 @@ export const CropRegistrationPage = () => {
 
   if (successData) {
     return (
-      <div className="max-w-md mx-auto p-4 space-y-6 text-center">
+      <div className="max-w-md mx-auto p-4 space-y-6 text-center pb-24">
         <div className="bg-emerald-100 rounded-3xl p-8 shadow-lg">
           <CheckCircle2 className="w-24 h-24 text-emerald-600 mx-auto mb-4" />
           <h2 className="text-3xl font-black text-emerald-900 mb-2">Kam Pura Hua!</h2>
@@ -214,21 +237,66 @@ export const CropRegistrationPage = () => {
               <input
                 type="date"
                 value={preferredDate}
+                min={new Date().toISOString().split('T')[0]}
                 onChange={(e) => setPreferredDate(e.target.value)}
                 className="w-full text-center text-2xl font-black py-4 rounded-xl border-2 border-slate-300"
               />
             </div>
-            <div className="space-y-2">
-              <label className="block text-slate-700 font-bold text-lg">Samay Chunein</label>
-              <select
-                value={preferredTime}
-                onChange={(e) => setPreferredTime(e.target.value)}
-                className="w-full text-center text-xl font-black py-4 rounded-xl border-2 border-slate-300 bg-white"
-              >
-                <option value="10:00 AM - 12:00 PM">Subah 10 baje - 12 baje</option>
-                <option value="12:00 PM - 02:00 PM">Dopahar 12 baje - 2 baje</option>
-                <option value="02:00 PM - 04:00 PM">Dopahar 2 baje - 4 baje</option>
-              </select>
+            <div className="space-y-2 pt-2">
+              <label className="block text-slate-700 font-bold text-lg mb-2">Samay Chunein (Kam Bheed Wale)</label>
+              {fetchingSlots ? (
+                <div className="text-center py-4 text-slate-500 font-bold">Checking slot availability...</div>
+              ) : (
+                <div className="space-y-3">
+                  {slots.map((slot, idx) => {
+                    const slotVal = `${slot.startTime} - ${slot.endTime}`;
+                    const isSelected = preferredTime === slotVal;
+                    const isFull = slot.fillPercentage >= 100;
+                    
+                    let bgCol = "bg-white";
+                    let borderCol = isSelected ? "border-brand-600" : "border-slate-200";
+                    let textCol = "text-slate-700";
+                    let fillText = "Fastest";
+                    let fillTextCol = "text-emerald-600 bg-emerald-100";
+
+                    if (slot.fillPercentage > 75) {
+                      fillText = "Busy";
+                      fillTextCol = "text-rose-600 bg-rose-100";
+                    } else if (slot.fillPercentage > 40) {
+                      fillText = "Moderate";
+                      fillTextCol = "text-amber-600 bg-amber-100";
+                    }
+
+                    if (isFull) {
+                      bgCol = "bg-slate-50 opacity-50";
+                      fillText = "Full";
+                    } else if (isSelected) {
+                      bgCol = "bg-brand-50";
+                    }
+
+                    return (
+                      <button
+                        key={idx}
+                        disabled={isFull}
+                        onClick={() => setPreferredTime(slotVal)}
+                        className={`w-full p-4 rounded-xl border-4 text-left transition flex items-center justify-between ${bgCol} ${borderCol}`}
+                      >
+                        <div>
+                          <div className={`font-black text-xl ${isSelected ? 'text-brand-900' : 'text-slate-900'}`}>
+                            {slot.startTime} to {slot.endTime}
+                          </div>
+                          <div className="w-full bg-slate-200 rounded-full h-1.5 mt-2 overflow-hidden">
+                            <div className={`h-1.5 rounded-full ${slot.fillPercentage > 75 ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ width: `${slot.fillPercentage}%` }}></div>
+                          </div>
+                        </div>
+                        <div className={`px-3 py-1 rounded-full text-sm font-bold ${fillTextCol}`}>
+                          {fillText}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         )}

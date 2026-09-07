@@ -23,10 +23,16 @@ const procurementSchema = new mongoose.Schema({
     default: 'REGISTERED'
   },
   tokenId: { type: mongoose.Schema.Types.ObjectId, ref: 'Token' },
+  slotId: { type: mongoose.Schema.Types.ObjectId, ref: 'Slot' },
   scheduledDate: { type: Date },
   slotStart: { type: String },
   slotEnd: { type: String },
-  estimatedAmount: { type: Number }
+  estimatedAmount: { type: Number },
+  statusHistory: [{
+    status: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } // Admin/Officer who made the change
+  }]
 }, { timestamps: true });
 
 const Procurement = mongoose.model('Procurement', procurementSchema);

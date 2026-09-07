@@ -84,6 +84,8 @@ export const getOfficerProcurementById = async (req, res) => {
 };
 
 
+import QueueState from '../models/QueueState.js';
+
 export const submitQualityWeighment = async (req, res) => {
   try {
     const { procurementId } = req.params;
@@ -106,7 +108,7 @@ export const submitQualityWeighment = async (req, res) => {
       return res.status(422).json({ success: false, message: 'grade (or qualityGrade) is required' });
     }
 
-    // Derive result: accept if moisture ≤ 14% (standard MSP rule)
+    // Derive result: accept if moisture <= 14% (standard MSP rule)
     // Allow the frontend to override with an explicit result field if present.
     const result = req.body.result ?? (moisture <= 14 ? 'ACCEPTED' : 'REJECTED');
 
@@ -137,7 +139,25 @@ export const submitQualityWeighment = async (req, res) => {
       procurement.status = 'PAYMENT_INITIATED';
       procurement.quantity = actualWeight;
       procurement.estimatedAmount = actualWeight * procurement.cropId.mspRate;
+      
+      // Strict state machine logging
+      procurement.statusHistory.push({ status: 'QUALITY_CHECK', updatedBy: req.user._id });
+      procurement.statusHistory.push({ status: 'PROCURED', updatedBy: req.user._id });
+      procurement.statusHistory.push({ status: 'PAYMENT_INITIATED', updatedBy: req.user._id });
       await procurement.save();
+
+      // Real-time Queue Logic: increment queue since this farmer is done
+      const dateStr = procurement.scheduledDate ? procurement.scheduledDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+      const qState = await QueueState.findOneAndUpdate(
+        { centreId: procurement.centreId._id, date: dateStr },
+        { $inc: { currentTokenBeingServed: 1 } },
+        { new: true, upsert: true }
+      );
+      
+      // Emit to Socket.IO room
+      if (req.io) {
+        req.io.to(`centre_${procurement.centreId._id}_${dateStr}`).emit('queueUpdate', { currentToken: qState.currentTokenBeingServed });
+      }
 
       const payment = new Payment({
         procurementId: procurement._id,
@@ -159,6 +179,7 @@ export const submitQualityWeighment = async (req, res) => {
       }).save();
     } else {
        procurement.status = 'REGISTERED';
+       procurement.statusHistory.push({ status: 'REJECTED', updatedBy: req.user._id });
        await procurement.save();
     }
 

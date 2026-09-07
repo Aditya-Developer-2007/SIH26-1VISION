@@ -42,6 +42,8 @@ export const getFarmerDashboard = async (req, res) => {
           title: "Gate Entry Scheduled",
           timeSlot: `${activeProcurementRaw.slotStart} - ${activeProcurementRaw.slotEnd}`,
           centreName: activeProcurementRaw.centreId?.name,
+          centreId: activeProcurementRaw.centreId?._id,
+          scheduledDate: activeProcurementRaw.scheduledDate ? activeProcurementRaw.scheduledDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
           distanceKm: 2,
           tokenNumber: activeProcurementRaw.tokenId?.tokenNumber,
           checklist: ['Meri Fasal Mera Byora', 'Aadhar Card', 'Bank Passbook']
@@ -219,33 +221,60 @@ export const getCentres = async (req, res) => {
   }
 };
 
+import Slot from '../models/Slot.js';
+
 export const registerCropAndBookSlot = async (req, res) => {
   try {
     const { cropId, centreId, scheduledDate, slotStart, slotEnd } = req.body;
     const quantity = parseFloat(req.body.quantity);
     const areaAcres = parseFloat(req.body.areaAcres) || 0;
 
-    if (!cropId || !centreId || !quantity || isNaN(quantity)) {
-      return res.status(400).json({ success: false, message: 'cropId, centreId, and a valid quantity are required' });
+    if (!cropId || !centreId || !quantity || isNaN(quantity) || !scheduledDate) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
     
     const crop = await Crop.findById(cropId);
     if (!crop) return res.status(404).json({ success: false, message: 'Crop not found' });
+
+    // ATOMIC SLOT BOOKING LOGIC
+    let slotDoc = await Slot.findOne({ centreId, date: scheduledDate, startTime: slotStart });
+    if (!slotDoc) {
+      // Default capacity 50 for MVP if slot doesn't exist yet
+      try {
+        slotDoc = await Slot.create({ centreId, date: scheduledDate, startTime: slotStart, endTime: slotEnd, capacity: 50 });
+      } catch (err) {
+        // Might fail if created concurrently, just fetch it
+        slotDoc = await Slot.findOne({ centreId, date: scheduledDate, startTime: slotStart });
+      }
+    }
+
+    // Atomically increment if under capacity
+    const updatedSlot = await Slot.findOneAndUpdate(
+      { _id: slotDoc._id, $expr: { $lt: ["$bookedCount", "$capacity"] } },
+      { $inc: { bookedCount: 1 } },
+      { new: true }
+    );
+
+    if (!updatedSlot) {
+      return res.status(409).json({ success: false, message: 'Slot full, please pick another time' });
+    }
     
-    // Parse scheduledDate safely: always store as UTC midnight from YYYY-MM-DD
-    const parsedDate = scheduledDate ? new Date(`${scheduledDate}T00:00:00.000Z`) : new Date();
+    // Parse scheduledDate safely
+    const parsedDate = new Date(`${scheduledDate}T00:00:00.000Z`);
 
     // Create Procurement
     const procurement = new Procurement({
       farmerId: req.user._id, centreId, cropId, quantity, season: crop.season, year: new Date().getFullYear(),
       mspRate: crop.mspRate, status: 'SCHEDULED', scheduledDate: parsedDate, slotStart, slotEnd,
-      estimatedAmount: quantity * crop.mspRate
+      estimatedAmount: quantity * crop.mspRate,
+      slotId: updatedSlot._id,
+      statusHistory: [{ status: 'SCHEDULED', updatedBy: req.user._id }]
     });
     await procurement.save();
 
-    // Generate Token
+    // Generate Token (Token number based on bookedCount to enforce strict ordering)
     const token = new Token({
-      tokenNumber: `AGRO-${Math.floor(1000 + Math.random() * 9000)}`,
+      tokenNumber: `TKN-${updatedSlot.bookedCount}`,
       procurementId: procurement._id, farmerId: req.user._id, centreId,
       date: parsedDate, slotStart, slotEnd
     });
@@ -254,7 +283,7 @@ export const registerCropAndBookSlot = async (req, res) => {
     procurement.tokenId = token._id;
     await procurement.save();
 
-    await new Notification({ userId: req.user._id, title: 'Slot Booked', message: `Your slot is booked for ${scheduledDate} with Token ${token.tokenNumber}` }).save();
+    await new Notification({ userId: req.user._id, title: 'Slot Booked', message: `Your slot is booked for ${scheduledDate} with Token ${token.tokenNumber}`, category: 'IMPORTANT' }).save();
 
     res.json({ success: true, data: procurement });
   } catch (error) {
