@@ -68,7 +68,7 @@ export const FarmerDashboard = () => {
   const todayAction = data?.todayAction?.status !== 'COMPLETED' ? data?.todayAction : null;
 
   return (
-    <div className="space-y-8 max-w-md mx-auto relative z-10">
+    <div className="space-y-8 relative z-10 w-full">
       
       {/* Welcome Greeting Header */}
       <div className="space-y-1 mt-2 px-2">
@@ -80,69 +80,86 @@ export const FarmerDashboard = () => {
         </h1>
       </div>
 
-      {/* Primary Action Hero Card (Zepto Style) */}
-      <Link
-        to="/farmer/register-crop"
-        className="block relative overflow-hidden rounded-[32px] bg-gradient-to-br from-brand-600 to-brand-800 p-8 shadow-[0_20px_40px_-15px_rgba(22,163,74,0.4)] hover-lift"
-      >
-        <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-        <div className="absolute -left-6 -bottom-6 w-32 h-32 bg-black/10 rounded-full blur-2xl"></div>
-        <div className="relative z-10 flex flex-col h-full">
-          <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-6 border border-white/20">
-            <PlusCircle className="w-8 h-8 text-white" />
-          </div>
-          <h2 className="text-2xl font-black text-white mb-2 leading-tight">Naya Fasal <br/> Register Karein</h2>
-          <p className="text-brand-100 font-medium text-sm flex items-center gap-2">
-            Click to start process <ArrowRight className="w-4 h-4" />
-          </p>
-        </div>
-      </Link>
-
-      {/* Active Alerts/Actions */}
-      {todayAction && (
-        <div className="px-2">
-          <h3 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-            Today's Action
-          </h3>
-          <TodayActionCard todayAction={todayAction} currentToken={currentToken} />
-        </div>
-      )}
-
-      {/* Premium Quick Links Grid */}
-      <div className="grid grid-cols-2 gap-4 px-2">
-        <Link to="/farmer/token" className="premium-card p-6 flex flex-col items-start gap-4 hover-lift group">
-          <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-            <QrCode className="w-6 h-6" />
-          </div>
-          <div>
-            <span className="font-black text-slate-900 block text-lg mb-1">Tokens</span>
-            <span className="text-xs font-semibold text-slate-500">View Active</span>
-          </div>
-        </Link>
-
-        <Link to="/farmer/payments" className="premium-card p-6 flex flex-col items-start gap-4 hover-lift group">
-          <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-            <CreditCard className="w-6 h-6" />
-          </div>
-          <div>
-            <span className="font-black text-slate-900 block text-lg mb-1">Earnings</span>
-            <span className="text-xs font-semibold text-slate-500">Track Money</span>
-          </div>
-        </Link>
-
-        <Link to="/farmer/centres" className="premium-card col-span-2 p-6 flex items-center justify-between hover-lift group">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              <Building2 className="w-7 h-7" />
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+        
+        {/* Left Column (Desktop) */}
+        <div className="md:col-span-8 space-y-8">
+          {/* Primary Action Hero Card (Zepto Style) */}
+          <Link
+            to="/farmer/register-crop"
+            className="block relative overflow-hidden rounded-[32px] bg-gradient-to-br from-brand-600 to-brand-800 p-8 shadow-[0_20px_40px_-15px_rgba(22,163,74,0.4)] hover-lift"
+          >
+            <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+            <div className="absolute -left-6 -bottom-6 w-32 h-32 bg-black/10 rounded-full blur-2xl"></div>
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-6 border border-white/20">
+                <PlusCircle className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-2xl md:text-3xl font-black text-white mb-2 leading-tight">Naya Fasal <br className="md:hidden"/> Register Karein</h2>
+              <p className="text-brand-100 font-medium text-sm flex items-center gap-2">
+                Click to start process <ArrowRight className="w-4 h-4" />
+              </p>
             </div>
-            <div>
-              <span className="font-black text-slate-900 block text-xl mb-1">Mandi Centres</span>
-              <span className="text-sm font-semibold text-slate-500">Find nearest locations</span>
-            </div>
+          </Link>
+
+          {/* Premium Quick Links Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 px-2 md:px-0">
+            <Link to="/farmer/token" className="premium-card p-6 flex flex-col items-start gap-4 hover-lift group">
+              <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <QrCode className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="font-black text-slate-900 block text-lg mb-1">Tokens</span>
+                <span className="text-xs font-semibold text-slate-500">View Active</span>
+              </div>
+            </Link>
+
+            <Link to="/farmer/payments" className="premium-card p-6 flex flex-col items-start gap-4 hover-lift group">
+              <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <CreditCard className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="font-black text-slate-900 block text-lg mb-1">Earnings</span>
+                <span className="text-xs font-semibold text-slate-500">Track Money</span>
+              </div>
+            </Link>
+
+            <Link to="/farmer/centres" className="premium-card col-span-2 md:col-span-1 p-6 flex items-center justify-between hover-lift group">
+              <div className="flex items-center md:flex-col md:items-start gap-4">
+                <div className="w-14 h-14 md:w-12 md:h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Building2 className="w-7 h-7 md:w-6 md:h-6" />
+                </div>
+                <div>
+                  <span className="font-black text-slate-900 block text-xl md:text-lg mb-1">Mandi Centres</span>
+                  <span className="text-sm md:text-xs font-semibold text-slate-500">Find nearest locations</span>
+                </div>
+              </div>
+              <ArrowRight className="w-6 h-6 text-slate-300 group-hover:text-amber-500 transition-colors md:hidden" />
+            </Link>
           </div>
-          <ArrowRight className="w-6 h-6 text-slate-300 group-hover:text-amber-500 transition-colors" />
-        </Link>
+        </div>
+
+        {/* Right Column (Desktop) */}
+        <div className="md:col-span-4">
+          {/* Active Alerts/Actions */}
+          {todayAction ? (
+            <div className="px-2 md:px-0">
+              <h3 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                Today's Action
+              </h3>
+              <TodayActionCard todayAction={todayAction} currentToken={currentToken} />
+            </div>
+          ) : (
+            <div className="px-2 md:px-0 h-full flex items-center justify-center">
+              <div className="text-center space-y-4 p-8 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 w-full">
+                <Calendar className="w-12 h-12 text-slate-300 mx-auto" />
+                <h3 className="text-lg font-black text-slate-500">No Action Required</h3>
+                <p className="text-sm font-bold text-slate-400">You don't have any appointments today.</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

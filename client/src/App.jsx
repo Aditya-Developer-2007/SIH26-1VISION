@@ -28,34 +28,41 @@ import { AdminDashboard } from './pages/admin/AdminDashboard';
 
 import { ProtectedRoute, RoleRoute } from './components/common/ProtectedRoutes';
 
+import { Sidebar } from './components/common/Sidebar';
+
 const MainLayout = () => {
   const { user } = useAuth();
   const role = user?.role;
 
   return (
-    <div className="min-h-screen flex flex-col bg-paper-50 relative">
-      {/* Top Nav: Desktop Farmer, and all other roles */}
-      <div className={role === 'FARMER' ? 'hidden md:block' : 'block'}>
-        {role === 'FARMER' && <FarmerTopNav />}
-        {role === 'OFFICER' && <OfficerTopNav />}
-        {role === 'ADMIN' && <AdminTopNav />}
-      </div>
+    <div className="min-h-screen flex bg-slate-50">
+      {/* Fixed Desktop Sidebar */}
+      <Sidebar />
 
-      {/* Top Nav: Mobile Farmer (Just a slim header) */}
-      <div className="block md:hidden">
-        {role === 'FARMER' && <FarmerTopNav mobile />}
-      </div>
-
-      <main className={`flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 ${role === 'FARMER' ? 'pb-24 md:pb-6' : 'pb-6'}`}>
-        <Outlet />
-      </main>
-
-      {/* Bottom Nav: Mobile Farmer ONLY */}
-      {role === 'FARMER' && (
-        <div className="block md:hidden fixed bottom-0 w-full z-50">
-          <BottomNav />
+      {/* Main Content Wrapper */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
+        {/* Top Nav: Desktop non-farmer or Mobile farmer */}
+        <div className="block md:hidden">
+          {role === 'FARMER' && <FarmerTopNav mobile />}
         </div>
-      )}
+        <div className={role === 'FARMER' ? 'hidden' : 'block md:hidden'}>
+          {role === 'OFFICER' && <OfficerTopNav />}
+          {role === 'ADMIN' && <AdminTopNav />}
+        </div>
+
+        <main className={`flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 ${role === 'FARMER' ? 'pb-24 md:pb-6' : 'pb-6'}`}>
+          <div className="max-w-md mx-auto md:max-w-7xl">
+            <Outlet />
+          </div>
+        </main>
+
+        {/* Bottom Nav: Mobile Farmer ONLY */}
+        {role === 'FARMER' && (
+          <div className="block md:hidden fixed bottom-0 w-full z-50">
+            <BottomNav />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
