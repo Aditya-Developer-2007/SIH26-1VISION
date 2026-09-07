@@ -121,17 +121,60 @@ export const CropRegistrationPage = () => {
 
   if (successData) {
     return (
-      <div className="max-w-md mx-auto p-4 space-y-6 text-center pb-24">
-        <div className="bg-emerald-100 rounded-3xl p-8 shadow-lg">
-          <CheckCircle2 className="w-24 h-24 text-emerald-600 mx-auto mb-4" />
-          <h2 className="text-3xl font-black text-emerald-900 mb-2">Kam Pura Hua!</h2>
-          <p className="text-lg text-emerald-800 font-bold mb-6">Aapka naya token ban gaya hai.</p>
-          <button
-            onClick={() => navigate('/farmer/token')}
-            className="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-4 rounded-xl text-xl shadow-lg transition"
-          >
-            Apna Token Dekho
-          </button>
+      <div className="fixed inset-0 z-50 bg-brand-600 flex flex-col items-center justify-center p-6 pb-24 overflow-y-auto">
+        <div className="w-full max-w-md bg-white rounded-[32px] p-8 shadow-2xl relative overflow-hidden text-center mt-12 mb-12">
+          {/* Decorative background circle */}
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-brand-50 rounded-full blur-3xl"></div>
+          
+          <div className="relative z-10 flex flex-col items-center">
+            <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6 border-4 border-white shadow-lg">
+              <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+            </div>
+            
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Booking Confirmed!</h2>
+            <p className="text-slate-500 font-bold mb-8">Your procurement slot is locked.</p>
+
+            {/* Token Block */}
+            <div className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-6 mb-6">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-1">Your Token</span>
+              <span className="text-5xl font-black text-brand-600 font-mono tracking-wider">{successData.token || 'A-000'}</span>
+            </div>
+
+            {/* Details List */}
+            <div className="w-full space-y-4 mb-8 text-left">
+              <div className="flex items-start justify-between pb-4 border-b-2 border-slate-100 border-dashed">
+                <span className="text-slate-500 font-bold">Mandi Center</span>
+                <span className="text-slate-900 font-black text-right">{selectedCentre?.name}</span>
+              </div>
+              <div className="flex items-start justify-between pb-4 border-b-2 border-slate-100 border-dashed">
+                <span className="text-slate-500 font-bold">Date</span>
+                <span className="text-slate-900 font-black text-right">{preferredDate}</span>
+              </div>
+              <div className="flex items-start justify-between pb-4 border-b-2 border-slate-100 border-dashed">
+                <span className="text-slate-500 font-bold">Time Slot</span>
+                <span className="text-slate-900 font-black text-right">{preferredTime}</span>
+              </div>
+              <div className="flex items-start justify-between">
+                <span className="text-slate-500 font-bold">Expected Fasal</span>
+                <span className="text-slate-900 font-black text-right">{estimatedQuintals} Q</span>
+              </div>
+            </div>
+
+            <div className="w-full space-y-3">
+              <button
+                onClick={() => navigate('/farmer')}
+                className="w-full bg-brand-600 hover:bg-brand-700 text-white font-black py-4 rounded-xl text-lg shadow-lg shadow-brand-200 transition"
+              >
+                View Live Queue
+              </button>
+              <button
+                onClick={() => setSuccessData(null)}
+                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-black py-4 rounded-xl text-lg transition"
+              >
+                Back to Dashboard
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );

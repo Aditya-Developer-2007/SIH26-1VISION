@@ -85,8 +85,15 @@ export const TodayActionCard = ({ todayAction, currentToken }) => {
         {/* CTA Buttons */}
         <div className="flex flex-wrap items-center gap-3">
           <Link
+            to="/farmer/queue"
+            className="inline-flex items-center justify-center gap-2 bg-rose-500 hover:bg-rose-600 text-white font-black px-6 py-3 rounded-xl text-sm transition shadow-md w-full md:w-auto"
+          >
+            <Users className="w-5 h-5" />
+            View Live Queue
+          </Link>
+          <Link
             to="/farmer/token"
-            className="inline-flex items-center justify-center gap-2 bg-white text-brand-900 hover:bg-brand-50 font-bold px-5 py-2.5 rounded-lg text-sm transition shadow-sm"
+            className="inline-flex items-center justify-center gap-2 bg-white/20 text-white hover:bg-white/30 font-bold px-5 py-3 rounded-xl text-sm transition w-full md:w-auto"
           >
             <QrCode className="w-4 h-4" />
             {t('viewToken')}
